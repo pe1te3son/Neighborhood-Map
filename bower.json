@@ -1,0 +1,10 @@
+{
+  "name": "Neighborhood Map",
+  "private": true,
+  "dependencies": {
+    "jquery": "~2.1.1"
+  },
+  "devDependencies": {
+    "knockout": "^3.4.0"
+  }
+}

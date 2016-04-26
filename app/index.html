@@ -26,9 +26,12 @@
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <div id="map">
-
+    <div id="main">
+      <ul data-bind="foreach: places">
+        <li><a href="#" data-bind="text: name, click: $parent.markerClick"></a></li>
+      </ul>
     </div>
+    <div id="map"></div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
     <script>

@@ -1,15 +1,33 @@
-$(document).ready(function(){
-
-  var mapInit = function(){
-    var map;
-    var mapOptions = {
-      center: {lat: -34.397, lng: 150.644},
-      zoom: 8
-    }
-    map = new google.maps.Map(document.getElementById('map'), mapOptions);
+var locations = [
+  {
+    lat: 51.507351,
+    lng: -0.127758
+  }
+];
 
 
-  }//mapInit() ends
+var initMap = function(){
+  var map;
+  var mapOptions = {
+    center: locations[0],
+    zoom: 8
+  }
+  map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-  mapInit();
-});
+ko.applyBindings( new ViewModel());
+};//mapInit() ends
+
+
+//place object
+var Place = function(data){
+  this.lat = data.lat;
+  this.lng = data.lng;
+}
+
+var ViewModel = function(){
+  var self = this;
+
+  //creates array with all places
+  self.allPlaces = ko.observableArray([]);
+
+};

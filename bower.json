@@ -3,7 +3,9 @@
   "private": true,
   "dependencies": {
     "jquery": "~2.1.1",
-    "knockout": "^3.4.0"
+    "knockout": "^3.4.0",
+    "normalize-scss": "^3.0.3",
+    "bourbon": "^4.2.7"
   },
   "devDependencies": {
     "chai": "^3.5.0",

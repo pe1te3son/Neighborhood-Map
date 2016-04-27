@@ -44,21 +44,15 @@ var Place = function(data){
     map: map,
     draggable: true,
     title: this.name(),
-    animation: google.maps.Animation.DROP
+    animation: google.maps.Animation.DROP,
+
   });
+
 
   //listens for click on marker
-  google.maps.event.addListener(this.marker, 'click', function() {
-    map.setZoom(15);
-    map.setCenter(this.getPosition());
-
-    if (this.getAnimation() !== null) {
-      this.setAnimation(null);
-    } else {
-      this.setAnimation(google.maps.Animation.BOUNCE);
-    }
-
-  });
+  // this.test = google.maps.event.addListener(this.marker, 'click', function() {
+  //   map.setCenter(this.getPosition());
+  // });
 
   //runs animation on click
   this.itemClick = function() {
@@ -80,10 +74,8 @@ var ViewModel = function(data){
   self.itemClick = function(el){
     //el = element clicked on
     el.itemClick();
-
     // center the map when location on the list is clicked
     map.setCenter({lat: el.lat(), lng: el.lng()});
-    map.setZoom(15);
   };
 
   //creates array with all places
@@ -91,8 +83,16 @@ var ViewModel = function(data){
     self.places().push(new Place(place));
   });
 
+  //add listener for every marker
+  var infowindow = new google.maps.InfoWindow();
+  self.places().forEach(function(place){
+      google.maps.event.addListener(place.marker, 'click', function(e) {
+      infowindow.open(map, this);
+      console.log(this.position.lat());
+    });
+  });
 
 
 
 
-};
+};//ViewModel() ends

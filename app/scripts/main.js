@@ -1,3 +1,4 @@
+//array of all places
 var locations = [
   {
     name: "British Museum",
@@ -18,6 +19,11 @@ var locations = [
 
 var map;
 
+/**
+* Map basic settings
+* It`s being called in index.html
+*
+*/
 var initMap = function(){
 
   var mapOptions = {
@@ -45,37 +51,42 @@ var Place = function(data){
     draggable: true,
     title: this.name(),
     animation: google.maps.Animation.DROP,
-
   });
-
-
-  //listens for click on marker
-  // this.test = google.maps.event.addListener(this.marker, 'click', function() {
-  //   map.setCenter(this.getPosition());
-  // });
-
-  //runs animation on click
-  this.itemClick = function() {
-    if (this.marker.getAnimation() !== null) {
-      this.marker.setAnimation(null);
-    } else {
-      this.marker.setAnimation(google.maps.Animation.BOUNCE);
-    }
-  };
 
 };
 
+/**
+* View model
+* @param array - data - array of all places
+* It is called in initMap
+*/
 var ViewModel = function(data){
   var self = this;
   self.data = data;
   self.places = ko.observableArray();//holds all places
 
-  //listens for click then calls object`s click function
+  /**
+  * Listens for click then calls object`s click function
+  * Runs when list item is clicked
+  * Takes no arguments
+  * el = element clicked on
+  */
   self.itemClick = function(el){
-    //el = element clicked on
-    el.itemClick();
+
     // center the map when location on the list is clicked
     map.setCenter({lat: el.lat(), lng: el.lng()});
+
+    //sets animation
+    if (el.marker.getAnimation() !== null) {
+      el.marker.setAnimation(null);
+    } else {
+      el.marker.setAnimation(google.maps.Animation.BOUNCE);
+    }
+
+    //resets animation in 1 second
+    setTimeout(function(){
+      el.marker.setAnimation(null);
+    }, 1000)
   };
 
   //creates array with all places
@@ -83,12 +94,11 @@ var ViewModel = function(data){
     self.places().push(new Place(place));
   });
 
-  //add listener for every marker
+  //adds click listener to each marker
   var infowindow = new google.maps.InfoWindow();
   self.places().forEach(function(place){
       google.maps.event.addListener(place.marker, 'click', function(e) {
       infowindow.open(map, this);
-      console.log(this.position.lat());
     });
   });
 

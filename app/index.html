@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initMap"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
 
   </head>
   <body>
@@ -28,10 +28,10 @@
 
     <div id="main">
       <ul data-bind="foreach: places">
-        <li><a href="#" data-bind="text: name, click: $parent.itemClick"></a></li>
+        <li><a href="#" data-bind="text: $data.name"></a></li>
       </ul>
     </div>
-    <div id="map"></div>
+  <div id="map" data-bind="googlemap: { places: places, centerLat:  51.51, centerLon: -0.12 }"></div>
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
     <script>

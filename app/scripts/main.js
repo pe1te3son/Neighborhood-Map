@@ -32,6 +32,9 @@ var Place = function(data){
     return {lat: self.lat(), lng: self.lng()};
   });
 
+  self.what = function(){
+    console.log('waht');
+  }
 
 
 };
@@ -45,31 +48,57 @@ var MyViewModel = function() {
       self.places().push(new Place(locations[i]));
 
     }
+
+    self.click = function(el){
+
+    };
+
+
 }
 
 
 ko.bindingHandlers.googlemap = {
-  init: function (element, valueAccessor) {
-    var
-      value = valueAccessor(),
-      mapOptions = {
+  init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+    var value = valueAccessor();
+    var bin = allBindings();
+    var mapOptions = {
         zoom: 11,
         center: new google.maps.LatLng(value.centerLat, value.centerLon),
         mapTypeId: google.maps.MapTypeId.ROADMAP
         },
       map = new google.maps.Map(element, mapOptions);
 
+
+
     for(var i=0; i<value.places().length; i++){
       var latLng = new google.maps.LatLng(value.places()[i].position());
-      var marker = new google.maps.Marker({
+      value.places()[i].marker = new google.maps.Marker({
         position: latLng,
-        map: map
+        map: map,
+        text: latLng
+      });
+
+      var infowindow = new google.maps.InfoWindow({
+        content: 'hey'
+      });
+
+
+      value.places()[i].marker.addListener('click', function(){
+        //console.log(viewModel)
+        viewModel.click(this);
+        infowindow.open(map, this);
+
       });
     }
+
+
   },
 
-  update: function(){
-    console.log('got it');
+  update: function(element, valueAccessor, bindingContext){
+    var data = bindingContext.$data;
+
+
+
   }
 };
 

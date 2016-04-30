@@ -60,10 +60,7 @@ ko.bindingHandlers.googlemap = {
       map = new google.maps.Map(element, mapOptions);
 
     for(var i=0; i<value.places().length; i++){
-      var latLng = new google.maps.LatLng(
-                      value.places()[i].lat(),
-                      value.places()[i].lng()
-                    );
+      var latLng = new google.maps.LatLng(value.places()[i].position());
       var marker = new google.maps.Marker({
         position: latLng,
         map: map

@@ -22,98 +22,59 @@ var locations = [
 
 var map;
 
-/**
-* Map basic settings
-* It`s being called in index.html
-*
-*/
-var initMap = function(){
 
-  var mapOptions = {
-    center: { lat: locations[0].lat,  lng: locations[0].lng},
-    zoom: 11
-  }
-  //loads a map
-  map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-  //view model binding
-  ko.applyBindings( new ViewModel(locations));
-};//mapInit() ends
-
-
-//place object
 var Place = function(data){
-  this.lat = ko.observable(data.lat);
-  this.lng = ko.observable(data.lng);
-  this.name = ko.observable(data.name);
-  this.id = data.id;
-
-  //creates marker for this place
-  this.marker = new google.maps.Marker({
-    position:  {lat:this.lat(), lng:this.lng()},
-    map: map,
-    title: this.name(),
-    animation: google.maps.Animation.DROP,
+  var self = this;
+  self.lat = ko.observable(data.lat);
+  self.lng = ko.observable(data.lng);
+  self.name = ko.observable(data.name);
+  self.position = ko.computed(function(){
+    return {lat: self.lat(), lng: self.lng()};
   });
 
 
 
 };
 
-/**
-* View model
-* @param array - data - array of all places
-* It is called in initMap
-*/
-var ViewModel = function(data){
-  var self = this;
-  self.data = data;
-  self.places = ko.observableArray();//holds all places
-  self.ajaxurl = 'https://api.foursquare.com/v2/venues/'+this.id+'?client_id=COIOBSSXMC4DBNB22N0WZ1WC3W0PXOFMC1NJW5PN1BL0FINU&client_secret=QKFUWS0PWNBAKMHNDGTPYUT0CAQIM2TJGJIHWSMH4Q5YORRH&v=20140806';
 
-  /**
-  * Listens for click then calls object`s click function
-  * @desc Runs when list item is clicked
-  * Takes no arguments
-  * el = element clicked on
-  */
-  self.itemClick = function(el){
+var MyViewModel = function() {
+    var self = this;
+    self.places = ko.observable([]);
 
-    // center the map when location on the list is clicked
-    map.setCenter({lat: el.lat(), lng: el.lng()});
+    for(var i =0; i<locations.length; i++){
+      self.places().push(new Place(locations[i]));
 
-    //sets animation
-    if (el.marker.getAnimation() !== null) {
-      el.marker.setAnimation(null);
-    } else {
-      el.marker.setAnimation(google.maps.Animation.BOUNCE);
     }
+}
 
-    //resets animation in 1 second
-    setTimeout(function(){
-      el.marker.setAnimation(null);
-    }, 750)
-  };
 
-  //creates array with all places
-  self.data.forEach(function(place){
-    self.places().push(new Place(place));
-  });
+ko.bindingHandlers.googlemap = {
+  init: function (element, valueAccessor) {
+    var
+      value = valueAccessor(),
+      mapOptions = {
+        zoom: 11,
+        center: new google.maps.LatLng(value.centerLat, value.centerLon),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+        },
+      map = new google.maps.Map(element, mapOptions);
 
-  self.ajaxtest = function(){
-    console.log('gothca');
+    for(var i=0; i<value.places().length; i++){
+      var latLng = new google.maps.LatLng(
+                      value.places()[i].lat(),
+                      value.places()[i].lng()
+                    );
+      var marker = new google.maps.Marker({
+        position: latLng,
+        map: map
+      });
+    }
+  },
+
+  update: function(){
+    console.log('got it');
   }
-  //adds click listener to each marker
-  var infowindow = new google.maps.InfoWindow();
-  self.places().forEach(function(place){
-      google.maps.event.addListener(place.marker, 'click', function() {
-      infowindow.open(map, this);
-      self.ajaxtest();
-      console.log()
-    });
-  });
+};
 
 
-
-
-};//ViewModel() ends
+ko.applyBindings(new MyViewModel());

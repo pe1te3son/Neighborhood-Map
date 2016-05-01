@@ -1,3 +1,4 @@
+$(document).ready(function(){
 //array of all places
 var data = {
   "auth": {
@@ -40,29 +41,13 @@ var Place = function(dataArray){
   self.position = ko.computed(function(){
     return {lat: self.lat(), lng: self.lng()};
   });
+  self.image = ko.observable();
+  self.desc = ko.observable();
   self.ajaxurl = function(){
     var url = 'https://api.foursquare.com/v2/venues/'+ self.id() +'?client_id='+ self.client_id +'&client_secret='+ self.client_secret +"&v=20160501";
     return url;
-  }
+  };
 
-
-
-  self.ajaxInfo = function(){
-    var string = "hey";
-    $.ajax({
-      dataType: "json",
-      url: self.ajaxurl(),
-      success: function(data){
-
-        string = data.response;
-        console.log(string);
-      },
-      error: function(){
-
-      }
-    });
-    return string;
-  };//ajaxInfo() ends
 };
 
 
@@ -73,7 +58,6 @@ var MyViewModel = function() {
     data.locations.forEach(function(loc){
       self.places().push(new Place(loc));
     });
-
 
 }
 
@@ -97,17 +81,34 @@ ko.bindingHandlers.googlemap = {
 
     var infowindow = new google.maps.InfoWindow();
 
+
+    var getInfo = function(){
+        var content ="";
+
+        $.ajax({
+          //async: false,
+          dataType: "json",
+          url: value.places()[0].ajaxurl(),
+          success: function(data){
+            content =" dfa";
+
+          },
+          error: function(){
+            content = "fuck me";
+          }
+        });
+        return content;
+      };//ajaxInfo() ends
+
     for(var i=0; i<value.places().length; i++){
       var latLng = new google.maps.LatLng(value.places()[i].position());
       value.places()[i].marker = new google.maps.Marker({
         position: latLng,
         map: map,
-        info: value.places()[i].ajaxInfo()
       });
-
       value.places()[i].marker.addListener('click', function(){
-
-        infowindow.setContent(this.info);
+        var content = getInfo();
+        infowindow.setContent(content);
         infowindow.open(map, this);
       });
     }//for loop
@@ -123,5 +124,5 @@ ko.bindingHandlers.googlemap = {
 
 };
 
-
-ko.applyBindings(new MyViewModel());
+  ko.applyBindings(new MyViewModel());
+});

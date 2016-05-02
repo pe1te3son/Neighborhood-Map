@@ -116,26 +116,32 @@ ko.bindingHandlers.googlemap = {
     * @param marker - google map marker
     */
     var getInfo = function(marker){
-        $.ajax({
-          dataType: "json",
-          url: value.places()[marker.index].ajaxurl(),
-           success: function(data){
-            var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
-            var content = '<img src='+photo+'>';
-            infowindow.setContent(content);
-            infowindow.open(map, marker);
-            console.log(data.response.venue);
-          },
-          error: function(){
-            var content = "fuck me";
-          }
-        });
 
-      };//getInfo() ends
+      var client_id = data.auth.client_id;
+      var client_secret = data.auth.client_secret;
+      var url = 'https://api.foursquare.com/v2/venues/'+ marker.id +'?client_id='+ client_id +'&client_secret='+  client_secret +"&v=20160501";
 
-      /*
-        Creates marker for each place
-      */
+      $.ajax({
+        dataType: "json",
+        url: url,
+        cache: true,
+         success: function(data){
+          var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
+          var content = '<img src='+photo+'>';
+          infowindow.setContent(content);
+          infowindow.open(map, marker);
+          console.log(data.response.venue);
+        },
+        error: function(){
+          var content = "fuck me";
+        }
+      });
+
+    };//getInfo() ends
+
+    /*
+      Creates marker for each place
+    */
     for(var i=0; i<value.places().length; i++){
       var latLng = new google.maps.LatLng(value.places()[i].position());
 
@@ -143,21 +149,16 @@ ko.bindingHandlers.googlemap = {
         position: latLng,
         map: map,
         animation: google.maps.Animation.DROP,
-        /*
-          Conects marker with place, when ajax is being called
-        */
-        index: i
+        id: value.places()[i].id()
       });
 
       value.places()[i].marker.addListener('click', function(){
-        /*
-          When clicked retrieve and display data
+        /**
+        *  When clicked retrieve and display data
         */
         getInfo(this);
       });
     }//for loop
-
-
 
   },
 

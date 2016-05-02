@@ -26,12 +26,20 @@ var data = {
     }
   ]
 };
-
+/*
+  global map
+*/
 var map;
 
 
+/**
+* All place`s object
+* @param: dataArray - json
+* Object for every place
+*/
 var Place = function(dataArray){
   var self = this;
+  self.visible = ko.observable(true);
   self.lat = ko.observable(dataArray.lat);
   self.lng = ko.observable(dataArray.lng);
   self.name = ko.observable(dataArray.name);
@@ -50,28 +58,49 @@ var Place = function(dataArray){
 
 };
 
-
+/**
+* View model
+*/
 var MyViewModel = function() {
     var self = this;
     self.places = ko.observable([]);
-
+    /*
+      adds Place into observable array
+    */
     data.locations.forEach(function(loc){
       self.places().push(new Place(loc));
     });
 
-}
+    self.locClick = function(e){
+      if (e.marker.getAnimation() !== null) {
+        e.marker.setAnimation(null);
+      } else {
+        e.marker.setAnimation(google.maps.Animation.BOUNCE);
+      }
+      setTimeout(function(){e.marker.setAnimation(null);}, 750);
+    };
+    self.hideitem = function(e){
+      // e.visible(false);
+      // e.marker.setMap(null);
+      console.log(e);
+    };
 
+}; //MyViewModel ends
 
+/**
+* Custom binding
+* Creates map, marker and infowindow for each place
+*/
 ko.bindingHandlers.googlemap = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+    /*
+      Binding with map element in index.html
+    */
     var value = valueAccessor();
 
-    // console.log(element);
-    // console.log(valueAccessor);
-     //console.log(allBindings());
-    // console.log(viewModel);
-     console.log(bindingContext);
-
+     /*
+       Settings for map
+     */
     var mapOptions = {
         zoom: 11,
         center: new google.maps.LatLng(value.centerLat, value.centerLon),
@@ -81,7 +110,11 @@ ko.bindingHandlers.googlemap = {
 
     var infowindow = new google.maps.InfoWindow();
 
-
+    /**
+    *  Ajax request function
+    * This function runs when marker is clicked, it retrieves data from foursquare
+    * @param marker - google map marker
+    */
     var getInfo = function(marker){
         $.ajax({
           dataType: "json",
@@ -98,18 +131,28 @@ ko.bindingHandlers.googlemap = {
           }
         });
 
-      };//ajaxInfo() ends
+      };//getInfo() ends
 
+      /*
+        Creates marker for each place
+      */
     for(var i=0; i<value.places().length; i++){
       var latLng = new google.maps.LatLng(value.places()[i].position());
+
       value.places()[i].marker = new google.maps.Marker({
         position: latLng,
         map: map,
+        animation: google.maps.Animation.DROP,
+        /*
+          Conects marker with place, when ajax is being called
+        */
         index: i
       });
 
       value.places()[i].marker.addListener('click', function(){
-
+        /*
+          When clicked retrieve and display data
+        */
         getInfo(this);
       });
     }//for loop
@@ -120,7 +163,7 @@ ko.bindingHandlers.googlemap = {
 
   update: function(){
 
-    console.log('find u');
+
   }
 
 

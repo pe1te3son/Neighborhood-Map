@@ -28,7 +28,7 @@
 
     <div id="main">
       <ul data-bind="foreach: places">
-        <li><a href="#" data-bind="text: $data.name"></a></li>
+        <li><a href="#" data-bind="text: $data.name, visible: $data.visible, click: $parent.locClick"></a></li>
       </ul>
 
     </div>

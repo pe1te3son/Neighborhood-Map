@@ -68,9 +68,9 @@ ko.bindingHandlers.googlemap = {
 
     // console.log(element);
     // console.log(valueAccessor);
-    // console.log(allBindings);
+     //console.log(allBindings());
     // console.log(viewModel);
-    // console.log(bindingContext);
+     console.log(bindingContext);
 
     var mapOptions = {
         zoom: 11,
@@ -82,22 +82,22 @@ ko.bindingHandlers.googlemap = {
     var infowindow = new google.maps.InfoWindow();
 
 
-    var getInfo = function(){
-        var content ="";
-
+    var getInfo = function(marker){
         $.ajax({
-          //async: false,
           dataType: "json",
-          url: value.places()[0].ajaxurl(),
-          success: function(data){
-            content =" dfa";
-
+          url: value.places()[marker.index].ajaxurl(),
+           success: function(data){
+            var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
+            var content = '<img src='+photo+'>';
+            infowindow.setContent(content);
+            infowindow.open(map, marker);
+            console.log(data.response.venue);
           },
           error: function(){
-            content = "fuck me";
+            var content = "fuck me";
           }
         });
-        return content;
+
       };//ajaxInfo() ends
 
     for(var i=0; i<value.places().length; i++){
@@ -105,11 +105,12 @@ ko.bindingHandlers.googlemap = {
       value.places()[i].marker = new google.maps.Marker({
         position: latLng,
         map: map,
+        index: i
       });
+
       value.places()[i].marker.addListener('click', function(){
-        var content = getInfo();
-        infowindow.setContent(content);
-        infowindow.open(map, this);
+
+        getInfo(this);
       });
     }//for loop
 
@@ -119,6 +120,7 @@ ko.bindingHandlers.googlemap = {
 
   update: function(){
 
+    console.log('find u');
   }
 
 

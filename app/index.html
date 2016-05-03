@@ -25,10 +25,10 @@
     <!--[if lt IE 10]>
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-
+  <input type="text" placeholder="search" data-bind="textInput: search">
     <div id="main">
-      <ul data-bind="foreach: places">
-        <li><a href="#" data-bind="text: $data.name, visible: $data.visible, click: $parent.locClick"></a></li>
+      <ul data-bind="foreach: searchInput()">
+        <li><a href="#" data-bind="text: $data.name, click: $parent.locClick"></a></li>
       </ul>
 
     </div>

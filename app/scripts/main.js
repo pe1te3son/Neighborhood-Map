@@ -39,7 +39,6 @@ var map;
 */
 var Place = function(dataArray){
   var self = this;
-  self.visible = ko.observable(true);
   self.lat = ko.observable(dataArray.lat);
   self.lng = ko.observable(dataArray.lng);
   self.name = ko.observable(dataArray.name);
@@ -57,13 +56,19 @@ var Place = function(dataArray){
   };
 
 };
-
+ko.extenders.logChange = function(target, option) {
+target.subscribe(function(newValue) {
+   console.log(option + ": " + newValue);
+});
+return target;
+};
 /**
 * View model
 */
 var MyViewModel = function() {
     var self = this;
     self.places = ko.observable([]);
+    self.search = ko.observable('');
     /*
       adds Place into observable array
     */
@@ -71,6 +76,44 @@ var MyViewModel = function() {
       self.places().push(new Place(loc));
     });
 
+    /*
+      Filters locations based on search input
+    */
+    self.searchInput = ko.computed(function() {
+      var filter = this.search().toLowerCase();
+
+      if (!filter) {
+
+          if(self.places()[0].marker){//resets all markers to be visible, if search input has been cleared
+            self.places().forEach(function(place){
+              place.marker.setVisible(true);
+            });
+          }
+          
+          return self.places();
+      } else {
+        return ko.utils.arrayFilter(self.places(), function(item) {
+
+          var found = item.name().toLowerCase().indexOf(filter) !== -1 ;
+          if (found) {
+            /*
+              If result is true, show correct marker based off users search
+            */
+            item.marker.setVisible(true);
+          } else {
+            /*
+              hide markers that do not show users search results
+            */
+            item.marker.setVisible(false);
+          }
+          return found;
+        });
+      }
+    }, self);
+
+    /*
+      Sets animation when location is cliked
+    */
     self.locClick = function(e){
       if (e.marker.getAnimation() !== null) {
         e.marker.setAnimation(null);
@@ -78,11 +121,6 @@ var MyViewModel = function() {
         e.marker.setAnimation(google.maps.Animation.BOUNCE);
       }
       setTimeout(function(){e.marker.setAnimation(null);}, 750);
-    };
-    self.hideitem = function(e){
-      // e.visible(false);
-      // e.marker.setMap(null);
-      console.log(e);
     };
 
 }; //MyViewModel ends

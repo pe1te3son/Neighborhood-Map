@@ -241,4 +241,21 @@ ko.bindingHandlers.googlemap = {
 };
 
   ko.applyBindings(new MyViewModel());
+
+  /**
+  * SIDE MENU
+  *
+  */
+
+  var offCanvas = function(){
+    var $button = document.getElementById('off-btn');
+    var $body = document.getElementById('off-body');
+    var $nav = document.getElementById('off-nav');
+
+    $button.addEventListener('click', function(e){
+      $nav.classList.toggle('off-shift');
+      $body.classList.toggle('off-shift');
+    }, false);
+  };
+  offCanvas();
 });

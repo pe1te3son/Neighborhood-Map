@@ -33,9 +33,10 @@ var map;
 
 
 /**
-* All place`s object
-* @param: dataArray - json
-* Object for every place
+*  All place`s object
+*  @param: dataArray - json
+*  Object for every place
+*
 */
 var Place = function(dataArray){
   var self = this;
@@ -61,16 +62,13 @@ var MyViewModel = function() {
   self.places = ko.observable([]);
   self.search = ko.observable('');
   self.infoWin = ko.observable();
-  /*
-    adds Place into observable array
-  */
+
+  //adds Place into observable array
   data.locations.forEach(function(loc){
     self.places().push(new Place(loc));
   });
 
-  /*
-    Filters locations based on search input
-  */
+  //Filters locations based on search input
   self.searchInput = ko.computed(function() {
     var filter = this.search().toLowerCase();
 
@@ -88,14 +86,12 @@ var MyViewModel = function() {
 
         var found = item.name().toLowerCase().indexOf(filter) !== -1 ;
         if (found) {
-          /*
-            If result is true, show correct marker based off users search
-          */
+
+          //If result is true, show correct marker based off users search
           item.marker.setVisible(true);
         } else {
-          /*
-            hide markers that do not show users search results
-          */
+
+          //hide markers that do not show users search results
           item.marker.setVisible(false);
         }
         return found;
@@ -103,9 +99,7 @@ var MyViewModel = function() {
     }
   }, self);
 
-  /*
-    Sets animation when location is cliked
-  */
+  //Sets animation when location is cliked
   self.locClick = function(e){
     if (e.marker.getAnimation() !== null) {
       e.marker.setAnimation(null);
@@ -115,22 +109,20 @@ var MyViewModel = function() {
     setTimeout(function(){e.marker.setAnimation(null);}, 750);
   };
 
-}; //MyViewModel ends
+}; // MyViewModel ends
 
 /**
 * Custom binding for google map
 * Creates map, marker and infowindow for each place
+*
 */
 ko.bindingHandlers.googlemap = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-    /*
-      Binding with map element in index.html
-    */
+
+    //Binding with map element in index.html
     var mapEl = valueAccessor();
 
-     /*
-       Settings for map
-     */
+    //Settings for map
     var mapOptions = {
       zoom: 11,
       center: new google.maps.LatLng(mapEl.centerLat, mapEl.centerLon),
@@ -140,12 +132,12 @@ ko.bindingHandlers.googlemap = {
         position: google.maps.ControlPosition.TOP_CENTER
       }
     };
-    /*
-      Creates map and adds to map div
-    */
-    map = new google.maps.Map(element, mapOptions);
 
-  },//init ends
+    // Creates map and adds to map div
+    map = new google.maps.Map(element, mapOptions);
+    window.mapBounds = new google.maps.LatLngBounds();
+
+  },// init ends
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext){
     var mapEl = valueAccessor();
     // console.log(element);
@@ -154,11 +146,14 @@ ko.bindingHandlers.googlemap = {
     // console.log(viewModel);
     // console.log(bindingContext);
 
+
     mapEl.infowindow = new google.maps.InfoWindow();
+
     /**
     *  Ajax request function
-    * This function runs when marker is clicked, it retrieves data from foursquare
-    * @param marker - google map marker
+    *  This function runs when marker is clicked, it retrieves data from foursquare
+    *  @param marker - google map marker
+    *
     */
     var getInfo = function(marker){
 
@@ -184,7 +179,7 @@ ko.bindingHandlers.googlemap = {
         }
       });
 
-    };//getInfo() ends
+    };// getInfo() ends
 
     var processInfo = function(data){
       var content = '<div class="infowindow">';
@@ -201,12 +196,9 @@ ko.bindingHandlers.googlemap = {
 
       content += '</div>';
       return content
-    };//processInfo ends
+    };// processInfo ends
 
-
-    /*
-      Creates marker for each place
-    */
+    // Creates marker for each place
     mapEl.places().forEach(function(place){
       var latLng = new google.maps.LatLng(place.position());
 
@@ -220,12 +212,27 @@ ko.bindingHandlers.googlemap = {
       place.marker.addListener('click', function(){
         /**
         *  When clicked retrieve and display data
+        *  Takes marker as an argument
         */
         getInfo(this);
       });
+
+      var bounds = window.mapBounds;
+      bounds.extend(new google.maps.LatLng(place.position()));
+      // fit the map to the new marker
+      map.fitBounds(bounds);
+      // center the map
+      map.setCenter(bounds.getCenter());
+
     });//foreach ends
 
-  }//update  ends
+
+    window.addEventListener('resize', function(e) {
+    // Make sure the map bounds get updated on page resize
+     map.fitBounds(mapBounds);
+   });
+
+  }// update  ends
 
 };
 

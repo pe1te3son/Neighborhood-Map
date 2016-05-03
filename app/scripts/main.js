@@ -60,6 +60,7 @@ var MyViewModel = function() {
   var self = this;
   self.places = ko.observable([]);
   self.search = ko.observable('');
+  self.infoWin = ko.observable();
   /*
     adds Place into observable array
   */
@@ -117,7 +118,7 @@ var MyViewModel = function() {
 }; //MyViewModel ends
 
 /**
-* Custom binding
+* Custom binding for google map
 * Creates map, marker and infowindow for each place
 */
 ko.bindingHandlers.googlemap = {
@@ -131,14 +132,29 @@ ko.bindingHandlers.googlemap = {
        Settings for map
      */
     var mapOptions = {
-        zoom: 11,
-        center: new google.maps.LatLng(mapEl.centerLat, mapEl.centerLon),
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-        },
-      map = new google.maps.Map(element, mapOptions);
+      zoom: 11,
+      center: new google.maps.LatLng(mapEl.centerLat, mapEl.centerLon),
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeControlOptions: {
+        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+        position: google.maps.ControlPosition.TOP_CENTER
+      }
+    };
+    /*
+      Creates map and adds to map div
+    */
+    map = new google.maps.Map(element, mapOptions);
 
-    var infowindow = new google.maps.InfoWindow();
+  },//init ends
+  update: function(element, valueAccessor, allBindings, viewModel, bindingContext){
+    var mapEl = valueAccessor();
+    // console.log(element);
+    // console.log(valueAccessor());
+    // console.log(allBindings());
+    // console.log(viewModel);
+    // console.log(bindingContext);
 
+    mapEl.infowindow = new google.maps.InfoWindow();
     /**
     *  Ajax request function
     * This function runs when marker is clicked, it retrieves data from foursquare
@@ -157,14 +173,14 @@ ko.bindingHandlers.googlemap = {
          success: function(data){
 
           var content = processInfo(data);
-          infowindow.setContent(content);
-          infowindow.open(map, marker);
+          mapEl.infowindow.setContent(content);
+          mapEl.infowindow.open(map, marker);
           console.log(data.response.venue);
         },
         error: function(){
           var content = "fuck me";
-          infowindow.setContent(content);
-          infowindow.open(map, marker);
+          mapEl.infowindow.setContent(content);
+          mapEl.infowindow.open(map, marker);
         }
       });
 
@@ -185,7 +201,8 @@ ko.bindingHandlers.googlemap = {
 
       content += '</div>';
       return content
-    }
+    };//processInfo ends
+
 
     /*
       Creates marker for each place
@@ -208,7 +225,7 @@ ko.bindingHandlers.googlemap = {
       });
     });//foreach ends
 
-  }//init ends
+  }//update  ends
 
 };
 

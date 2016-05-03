@@ -171,19 +171,19 @@ ko.bindingHandlers.googlemap = {
     };//getInfo() ends
 
     var processInfo = function(data){
-      var content = "";
+      var content = '<div class="infowindow">';
       var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
-      content += '<img src='+photo+'>';
-      content +=  '<p style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
+      content += '<img class="iw-img" src='+photo+'>';
+      content +=  '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
       var name = data.response.venue.name;
-      content += '<h3>'+ name +'</h3>';
+      content += '<h3 class="iw-name">'+ name +'</h3>';
       if(data.response.venue.description){
         var desc = data.response.venue.description;
         var trimDesc = desc.substring(0, 100);
-        content += '<p>'+ trimDesc +'...</p>';
+        content += '<p class="iw-desc">'+ trimDesc +'...</p>';
       }
 
-
+      content += '</div>';
       return content
     }
 

@@ -50,78 +50,69 @@ var Place = function(dataArray){
   });
   self.image = ko.observable();
   self.desc = ko.observable();
-  self.ajaxurl = function(){
-    var url = 'https://api.foursquare.com/v2/venues/'+ self.id() +'?client_id='+ self.client_id +'&client_secret='+ self.client_secret +"&v=20160501";
-    return url;
-  };
 
 };
-ko.extenders.logChange = function(target, option) {
-target.subscribe(function(newValue) {
-   console.log(option + ": " + newValue);
-});
-return target;
-};
+
 /**
 * View model
 */
 var MyViewModel = function() {
-    var self = this;
-    self.places = ko.observable([]);
-    self.search = ko.observable('');
-    /*
-      adds Place into observable array
-    */
-    data.locations.forEach(function(loc){
-      self.places().push(new Place(loc));
-    });
+  var self = this;
+  self.places = ko.observable([]);
+  self.search = ko.observable('');
+  /*
+    adds Place into observable array
+  */
+  data.locations.forEach(function(loc){
+    self.places().push(new Place(loc));
+  });
 
-    /*
-      Filters locations based on search input
-    */
-    self.searchInput = ko.computed(function() {
-      var filter = this.search().toLowerCase();
+  /*
+    Filters locations based on search input
+  */
+  self.searchInput = ko.computed(function() {
+    var filter = this.search().toLowerCase();
 
-      if (!filter) {
+    if (!filter) {
 
-          if(self.places()[0].marker){//resets all markers to be visible, if search input has been cleared
-            self.places().forEach(function(place){
-              place.marker.setVisible(true);
-            });
-          }
-          
-          return self.places();
-      } else {
-        return ko.utils.arrayFilter(self.places(), function(item) {
+        if(self.places()[0].marker){//resets all markers to be visible, if search input has been cleared
+          self.places().forEach(function(place){
+            place.marker.setVisible(true);
+          });
+        }
 
-          var found = item.name().toLowerCase().indexOf(filter) !== -1 ;
-          if (found) {
-            /*
-              If result is true, show correct marker based off users search
-            */
-            item.marker.setVisible(true);
-          } else {
-            /*
-              hide markers that do not show users search results
-            */
-            item.marker.setVisible(false);
-          }
-          return found;
-        });
-      }
-    }, self);
+        return self.places();
+    } else {
+      return ko.utils.arrayFilter(self.places(), function(item) {
 
-    /*
-      Sets animation when location is cliked
-    */
-    self.locClick = function(e){
-      if (e.marker.getAnimation() !== null) {
-        e.marker.setAnimation(null);
-      } else {
-        e.marker.setAnimation(google.maps.Animation.BOUNCE);
-      }
-      setTimeout(function(){e.marker.setAnimation(null);}, 750);
-    };
+        var found = item.name().toLowerCase().indexOf(filter) !== -1 ;
+        if (found) {
+          /*
+            If result is true, show correct marker based off users search
+          */
+          item.marker.setVisible(true);
+        } else {
+          /*
+            hide markers that do not show users search results
+          */
+          item.marker.setVisible(false);
+        }
+        return found;
+      });
+    }
+  }, self);
+
+  /*
+    Sets animation when location is cliked
+  */
+  self.locClick = function(e){
+    if (e.marker.getAnimation() !== null) {
+      e.marker.setAnimation(null);
+    } else {
+      e.marker.setAnimation(google.maps.Animation.BOUNCE);
+    }
+    setTimeout(function(){e.marker.setAnimation(null);}, 750);
+  };
 
 }; //MyViewModel ends
 
@@ -134,14 +125,14 @@ ko.bindingHandlers.googlemap = {
     /*
       Binding with map element in index.html
     */
-    var value = valueAccessor();
+    var mapEl = valueAccessor();
 
      /*
        Settings for map
      */
     var mapOptions = {
         zoom: 11,
-        center: new google.maps.LatLng(value.centerLat, value.centerLon),
+        center: new google.maps.LatLng(mapEl.centerLat, mapEl.centerLon),
         mapTypeId: google.maps.MapTypeId.ROADMAP
         },
       map = new google.maps.Map(element, mapOptions);
@@ -164,47 +155,60 @@ ko.bindingHandlers.googlemap = {
         url: url,
         cache: true,
          success: function(data){
-          var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
-          var content = '<img src='+photo+'>';
+
+          var content = processInfo(data);
           infowindow.setContent(content);
           infowindow.open(map, marker);
           console.log(data.response.venue);
         },
         error: function(){
           var content = "fuck me";
+          infowindow.setContent(content);
+          infowindow.open(map, marker);
         }
       });
 
     };//getInfo() ends
 
+    var processInfo = function(data){
+      var content = "";
+      var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
+      content += '<img src='+photo+'>';
+      content +=  '<p style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
+      var name = data.response.venue.name;
+      content += '<h3>'+ name +'</h3>';
+      if(data.response.venue.description){
+        var desc = data.response.venue.description;
+        var trimDesc = desc.substring(0, 100);
+        content += '<p>'+ trimDesc +'...</p>';
+      }
+
+
+      return content
+    }
+
     /*
       Creates marker for each place
     */
-    for(var i=0; i<value.places().length; i++){
-      var latLng = new google.maps.LatLng(value.places()[i].position());
+    mapEl.places().forEach(function(place){
+      var latLng = new google.maps.LatLng(place.position());
 
-      value.places()[i].marker = new google.maps.Marker({
+      place.marker = new google.maps.Marker({
         position: latLng,
         map: map,
         animation: google.maps.Animation.DROP,
-        id: value.places()[i].id()
+        id: place.id()
       });
 
-      value.places()[i].marker.addListener('click', function(){
+      place.marker.addListener('click', function(){
         /**
         *  When clicked retrieve and display data
         */
         getInfo(this);
       });
-    }//for loop
+    });//foreach ends
 
-  },
-
-  update: function(){
-
-
-  }
-
+  }//init ends
 
 };
 

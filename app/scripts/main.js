@@ -135,6 +135,7 @@ ko.bindingHandlers.googlemap = {
 
     // Creates map and adds to map div
     map = new google.maps.Map(element, mapOptions);
+
     window.mapBounds = new google.maps.LatLngBounds();
 
   },// init ends
@@ -210,6 +211,9 @@ ko.bindingHandlers.googlemap = {
       });
 
       place.marker.addListener('click', function(){
+        //sets marker to be in center of window when clicked
+        map.setCenter(this.getPosition());
+
         /**
         *  When clicked retrieve and display data
         *  Takes marker as an argument

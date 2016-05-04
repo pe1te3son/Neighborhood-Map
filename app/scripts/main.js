@@ -158,7 +158,7 @@ var MyViewModel = function() {
     }
 
     content += '</div>';
-    return content
+    return content;
   };// processInfo ends
 
 
@@ -263,14 +263,13 @@ ko.bindingHandlers.googlemap = {
 
 
   var moreInfo = function(){
-    var $button = document.getElementById('close-info');
-    var $info = document.getElementById('more-info');
 
     $('#close-info').click(function(){
       $('#more-info').removeClass('slide-out');
     });
 
-  }
+  };
+
   moreInfo();
 
   var openMoreInfo = function(){

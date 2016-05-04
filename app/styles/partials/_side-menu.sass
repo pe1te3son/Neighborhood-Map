@@ -1,19 +1,71 @@
 #off-nav
-  min-width: 300px
+  min-width: 360px
   height: 100vh
   position: fixed
   top: 0
-  left: -300px
+  left: -360px
+  background: $color1
+  color: $color2
   will-change: transform
   transition: transform 0.5s ease
+  overflow-x: hidden
+  overflow-y: auto
+  a
+    color: $color2
+    text-decoration: none
 
 #off-body
   will-change: transform
   transition: transform 0.5s ease
 
 .off-shift
-  transform: translateX(300px)
+  transform: translateX(360px)
 
 #off-btn
   z-index: 100
   +position(absolute, 20px null null 20px)
+  background: $color2
+  border: 1px solid darken($color2, 20%)
+  padding: 5px 10px
+  border-radius: 5px
+  outline: none
+  font-size: 1.2em
+  &:hover
+    opacity: .8
+    cursor: pointer
+
+
+.places-list
+  padding: 0
+  list-style: none
+
+#search-field
+  display: block
+  width: 80%
+  margin: 50px auto
+  padding: 5px 10px
+  border-radius: 5px
+  font-size: 1.2em
+  line-height: 1.2em
+  border: none
+
+.place
+  width: 100%
+  position: relative
+  &:hover
+    .slide-out-icon
+      color: $color2
+
+
+.place-link
+  display: block
+  margin: 0 2%
+  padding: 13px 0 5px 2%
+  border-bottom: 1px solid $color2
+  &:hover
+    background: lighten($color1, 5%)
+
+.slide-out-icon
+  display: inline-block
+  +position(absolute, 10px 10px null null)
+  color: $color1

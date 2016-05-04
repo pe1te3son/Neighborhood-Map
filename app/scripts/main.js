@@ -258,4 +258,15 @@ ko.bindingHandlers.googlemap = {
     }, false);
   };
   offCanvas();
+
+
+  var moreInfo = function(){
+    var $button = document.getElementById('close-info');
+    var $info = document.getElementById('more-info');
+
+    $('#close-info').click(function(){
+      $('#more-info').css('transform', 'translateX(-360px)');
+    });
+  }
+  moreInfo();
 });

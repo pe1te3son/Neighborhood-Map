@@ -61,7 +61,7 @@ var MyViewModel = function() {
   var self = this;
   self.places = ko.observable([]);
   self.search = ko.observable('');
-  self.infoWin = ko.observable();
+  self.infoWin = ko.observable(new google.maps.InfoWindow());
 
   //adds Place into observable array
   data.locations.forEach(function(loc){
@@ -109,12 +109,58 @@ var MyViewModel = function() {
     }
     setTimeout(function(){e.marker.setAnimation(null);}, 750);
 
-    //open more info window
-    if(!$('#more-info').hasClass('slide-out')){
-      $('#more-info').addClass('slide-out');
+    //opens info about selected location
+    openMoreInfo();
+  };
+
+  /**
+  *  Ajax request function
+  *  This function runs when marker is clicked, it retrieves data from foursquare
+  *  @param marker - google map marker
+  *
+  */
+  self.getInfo = function(marker){
+
+    var client_id = data.auth.client_id;
+    var client_secret = data.auth.client_secret;
+    var url = 'https://api.foursquare.com/v2/venues/'+ marker.id +'?client_id='+ client_id +'&client_secret='+  client_secret +"&v=20160501";
+
+    $.ajax({
+      dataType: "json",
+      url: url,
+      cache: true,
+       success: function(data){
+
+      var content = self.processInfo(data);
+      self.infoWin().setContent(content);
+      self.infoWin().open(map, marker);
+        console.log(data.response.venue);
+      },
+      error: function(){
+        var content = "fuck me";
+      self.infoWin().setContent(content);
+      self.infoWin().open(map, marker);
+      }
+    });
+  };// getInfo() ends
+
+  self.processInfo = function(data){
+    var content = '<div class="infowindow">';
+    var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
+    content += '<img class="iw-img" src='+photo+'>';
+    content +=  '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
+    var name = data.response.venue.name;
+    content += '<h3 class="iw-name">'+ name +'</h3>';
+    if(data.response.venue.description){
+      var desc = data.response.venue.description;
+      var trimDesc = desc.substring(0, 100);
+      content += '<p class="iw-desc">'+ trimDesc +'...</p>';
     }
 
-  };
+    content += '</div>';
+    return content
+  };// processInfo ends
+
 
 }; // MyViewModel ends
 
@@ -154,57 +200,6 @@ ko.bindingHandlers.googlemap = {
     // console.log(viewModel);
     // console.log(bindingContext);
 
-
-    mapEl.infowindow = new google.maps.InfoWindow();
-
-    /**
-    *  Ajax request function
-    *  This function runs when marker is clicked, it retrieves data from foursquare
-    *  @param marker - google map marker
-    *
-    */
-    self.getInfo = function(marker){
-
-      var client_id = data.auth.client_id;
-      var client_secret = data.auth.client_secret;
-      var url = 'https://api.foursquare.com/v2/venues/'+ marker.id +'?client_id='+ client_id +'&client_secret='+  client_secret +"&v=20160501";
-
-      $.ajax({
-        dataType: "json",
-        url: url,
-        cache: true,
-         success: function(data){
-
-          var content = processInfo(data);
-          mapEl.infowindow.setContent(content);
-          mapEl.infowindow.open(map, marker);
-          console.log(data.response.venue);
-        },
-        error: function(){
-          var content = "fuck me";
-          mapEl.infowindow.setContent(content);
-          mapEl.infowindow.open(map, marker);
-        }
-      });
-    };// getInfo() ends
-
-    var processInfo = function(data){
-      var content = '<div class="infowindow">';
-      var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
-      content += '<img class="iw-img" src='+photo+'>';
-      content +=  '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
-      var name = data.response.venue.name;
-      content += '<h3 class="iw-name">'+ name +'</h3>';
-      if(data.response.venue.description){
-        var desc = data.response.venue.description;
-        var trimDesc = desc.substring(0, 100);
-        content += '<p class="iw-desc">'+ trimDesc +'...</p>';
-      }
-
-      content += '</div>';
-      return content
-    };// processInfo ends
-
     // Creates marker for each place
     mapEl.places().forEach(function(place){
       var latLng = new google.maps.LatLng(place.position());
@@ -218,13 +213,14 @@ ko.bindingHandlers.googlemap = {
 
       place.marker.addListener('click', function(){
         //sets marker to be in center of window when clicked
-        map.setCenter(this.getPosition());
+      //  map.setCenter(this.getPosition());
 
         /**
         *  When clicked retrieve and display data
         *  Takes marker as an argument
         */
-        self.getInfo(this);
+        viewModel.getInfo(this);
+        openMoreInfo();
       });
 
       var bounds = window.mapBounds;
@@ -276,4 +272,12 @@ ko.bindingHandlers.googlemap = {
 
   }
   moreInfo();
+
+  var openMoreInfo = function(){
+    //open more-info window
+    if(!$('#more-info').hasClass('slide-out')){
+      $('#more-info').addClass('slide-out');
+    }
+  };
+
 });

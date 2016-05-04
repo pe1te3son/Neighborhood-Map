@@ -1,11 +1,13 @@
 #more-info
-  width: 380px
+  width: 360px
   height: 100vh
-  +position(fixed, 0 null null 0)
+  +position(fixed, 0 null null -380px)
   z-index: 1
   padding: 50px 10px 10px
   background: $color2
   box-shadow: 0 0 15px #888888
+  display: block
+  transition: all 0.5s ease
 
 #close-info
   +position(absolute, 20px 20px null null)
@@ -13,3 +15,6 @@
   font-size: 2em
   &:hover
     cursor: pointer
+
+.slide-out
+  transform: translateX(380px)

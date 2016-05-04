@@ -99,14 +99,21 @@ var MyViewModel = function() {
     }
   }, self);
 
-  //Sets animation when location is cliked
   self.locClick = function(e){
+
+    //Sets animation when location is cliked
     if (e.marker.getAnimation() !== null) {
       e.marker.setAnimation(null);
     } else {
       e.marker.setAnimation(google.maps.Animation.BOUNCE);
     }
     setTimeout(function(){e.marker.setAnimation(null);}, 750);
+
+    //open more info window
+    if(!$('#more-info').hasClass('slide-out')){
+      $('#more-info').addClass('slide-out');
+    }
+
   };
 
 }; // MyViewModel ends
@@ -156,7 +163,7 @@ ko.bindingHandlers.googlemap = {
     *  @param marker - google map marker
     *
     */
-    var getInfo = function(marker){
+    self.getInfo = function(marker){
 
       var client_id = data.auth.client_id;
       var client_secret = data.auth.client_secret;
@@ -179,7 +186,6 @@ ko.bindingHandlers.googlemap = {
           mapEl.infowindow.open(map, marker);
         }
       });
-
     };// getInfo() ends
 
     var processInfo = function(data){
@@ -218,7 +224,7 @@ ko.bindingHandlers.googlemap = {
         *  When clicked retrieve and display data
         *  Takes marker as an argument
         */
-        getInfo(this);
+        self.getInfo(this);
       });
 
       var bounds = window.mapBounds;
@@ -265,8 +271,9 @@ ko.bindingHandlers.googlemap = {
     var $info = document.getElementById('more-info');
 
     $('#close-info').click(function(){
-      $('#more-info').css('transform', 'translateX(-360px)');
+      $('#more-info').removeClass('slide-out');
     });
+
   }
   moreInfo();
 });

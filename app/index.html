@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="">
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="description" content="">
@@ -27,7 +27,7 @@
     <![endif]-->
     <div id="off-nav">
       <input type="text" placeholder="search" data-bind="textInput: search" id="search-field">
-      <ul data-bind="foreach: searchInput()" class="places-list">
+      <ul data-bind="foreach: searchInput" class="places-list">
         <li class="place"><a href="#" data-bind="text: $data.name, click: $parent.locClick" class="place-link">
 
         </a><i class="fa fa-arrow-right slide-out-icon" aria-hidden="true"></i></li>

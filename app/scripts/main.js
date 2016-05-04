@@ -213,7 +213,7 @@ ko.bindingHandlers.googlemap = {
 
       place.marker.addListener('click', function(){
         //sets marker to be in center of window when clicked
-      //  map.setCenter(this.getPosition());
+        map.setCenter(this.getPosition());
 
         /**
         *  When clicked retrieve and display data

@@ -60,7 +60,7 @@ var MyViewModel = function() {
   var self = this;
   self.places = ko.observable([]);
   self.search = ko.observable('');
-  self.displayInfo = ko.observable('<h1>hey</h1>');
+  self.displayInfo = ko.observable('');
   self.infoWin = ko.observable(new google.maps.InfoWindow());
 
   //adds Place into observable array
@@ -115,6 +115,8 @@ var MyViewModel = function() {
     // Animation reset
     setTimeout(function(){e.marker.setAnimation(null);}, 1500);
 
+    // Sets selected location`s marker to the center of map
+    map.setCenter(e.marker.getPosition());
     //opens info about selected location
     self.openMoreInfo();
     // Calls for data to display
@@ -125,7 +127,6 @@ var MyViewModel = function() {
   self.closeMoreInfo = function(){
 
     $('#more-info').removeClass('slide-out');
-    self.infoWin().close();
 
   };
 
@@ -170,21 +171,39 @@ var MyViewModel = function() {
 
   self.processInfo = function(data){
 
+    // Photo
     var content = '<div class="infowindow">';
     var photo = data.response.venue.bestPhoto.prefix +"400x300"+data.response.venue.bestPhoto.suffix;
     content += '<img src='+photo+' class="iw-img">';
 
+    // Name of the location
     var name = data.response.venue.name;
     content += '<h3 class="iw-name">'+ name +'</h3>';
 
-    var ratings = '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
+    // Address
+    var address = data.response.venue.location.formattedAddress
+    var formattedAddress = '<p class="iw-address">';
+    formattedAddress += address[0];
+    for(var i=1; i<address.length; i++){
+      formattedAddress += ', '+ address[i];
+    }
+    formattedAddress += '</p>';
+    content += formattedAddress;
+
+    //Ratings
+    var ratings = '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+' <sup> / 10</sup></p>';
     content +=  ratings;
 
+    // Description
     if(data.response.venue.description){
       var desc = data.response.venue.description;
       content += '<p class="iw-desc">'+ desc +'</p>';
     }
 
+    var contact = '';
+
+
+    // Opening times
     if(data.response.venue.hours){
       var hours = '';
       if(data.response.venue.hours.isOpen){
@@ -194,7 +213,6 @@ var MyViewModel = function() {
       }
       content += hours;
     }
-
 
 
     content += '</div>';
@@ -277,6 +295,7 @@ ko.bindingHandlers.googlemap = {
     // Make sure the map bounds get updated on page resize
      map.fitBounds(mapBounds);
      viewModel.closeMoreInfo();
+     viewModel.infoWin().close();
    });
 
   }// update  ends

@@ -30,7 +30,7 @@
 .slide-out
   transform: translateX(380px)
 
-#more-info-window
+.iw-name
   text-align: center
 
 .iw-img
@@ -38,7 +38,6 @@
 
 .iw-desc
   @extend %iwStyle
-  text-align: left
   border-top: 1px dotted $color3
   border-bottom: 1px dotted $color3
   padding: 20px 0
@@ -46,9 +45,18 @@
 .iw-rat
   @extend %iwStyle
   padding: 10px 0
+  text-align: center
+  max-width: 80%
+  margin: 20px auto
+  border-radius: 10px
 
 
 .iw-times
 
 .close-color
   color: $color4
+
+.iw-address
+  @extend %iwStyle
+  font-style: italic
+  font-size: 0.9em

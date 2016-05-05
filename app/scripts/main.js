@@ -31,7 +31,6 @@ var data = {
 */
 var map;
 
-
 /**
 *  All place`s object
 *  @param: dataArray - json
@@ -61,6 +60,7 @@ var MyViewModel = function() {
   var self = this;
   self.places = ko.observable([]);
   self.search = ko.observable('');
+  self.displayInfo = ko.observable('<h1>hey</h1>');
   self.infoWin = ko.observable(new google.maps.InfoWindow());
 
   //adds Place into observable array
@@ -99,6 +99,11 @@ var MyViewModel = function() {
     }
   }, self);
 
+  /**
+  * Triggers when location in slide in menu is being clicked.
+  * Takes event as argument, which is in this case Place
+  *
+  */
   self.locClick = function(e){
 
     //Sets animation when location is cliked
@@ -107,10 +112,29 @@ var MyViewModel = function() {
     } else {
       e.marker.setAnimation(google.maps.Animation.BOUNCE);
     }
-    setTimeout(function(){e.marker.setAnimation(null);}, 750);
+    // Animation reset
+    setTimeout(function(){e.marker.setAnimation(null);}, 1500);
 
     //opens info about selected location
-    openMoreInfo();
+    self.openMoreInfo();
+    // Calls for data to display
+    self.getInfo(e.marker);
+  };
+
+  // Closes info window
+  self.closeMoreInfo = function(){
+
+    $('#more-info').removeClass('slide-out');
+    self.infoWin().close();
+
+  };
+
+
+  self.openMoreInfo = function(){
+    //open more-info window
+    if(!$('#more-info').hasClass('slide-out')){
+      $('#more-info').addClass('slide-out');
+    }
   };
 
   /**
@@ -131,34 +155,55 @@ var MyViewModel = function() {
       cache: true,
        success: function(data){
 
-      var content = self.processInfo(data);
-      self.infoWin().setContent(content);
+      var markerContent = self.processInfo(data);
+      self.infoWin().setContent(markerContent);
       self.infoWin().open(map, marker);
         console.log(data.response.venue);
       },
       error: function(){
-        var content = "fuck me";
-      self.infoWin().setContent(content);
+        var markerContent = "fuck me";
+      self.infoWin().setContent(markerContent);
       self.infoWin().open(map, marker);
       }
     });
   };// getInfo() ends
 
   self.processInfo = function(data){
+
     var content = '<div class="infowindow">';
-    var photo = data.response.venue.bestPhoto.prefix +"150"+data.response.venue.bestPhoto.suffix;
-    content += '<img class="iw-img" src='+photo+'>';
-    content +=  '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
+    var photo = data.response.venue.bestPhoto.prefix +"400x300"+data.response.venue.bestPhoto.suffix;
+    content += '<img src='+photo+' class="iw-img">';
+
     var name = data.response.venue.name;
     content += '<h3 class="iw-name">'+ name +'</h3>';
+
+    var ratings = '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+'</p>';
+    content +=  ratings;
+
     if(data.response.venue.description){
       var desc = data.response.venue.description;
-      var trimDesc = desc.substring(0, 100);
-      content += '<p class="iw-desc">'+ trimDesc +'...</p>';
+      content += '<p class="iw-desc">'+ desc +'</p>';
     }
 
+    if(data.response.venue.hours){
+      var hours = '';
+      if(data.response.venue.hours.isOpen){
+        hours = '<p class="iw-times">'+ data.response.venue.hours.status +'</p>';
+      }else{
+          hours = '<p class="close-color iw-times">'+ data.response.venue.hours.status +'</p>';
+      }
+      content += hours;
+    }
+
+
+
     content += '</div>';
-    return content;
+    $('#more-info-window').html('').append(content);
+
+    // Returns selected processed data to marker
+    var markerContent = '<h4 style="margin: 0; border-bottom: 1px solid">'+ name +'</h4>';
+    return markerContent;
+
   };// processInfo ends
 
 
@@ -194,11 +239,6 @@ ko.bindingHandlers.googlemap = {
   },// init ends
   update: function(element, valueAccessor, allBindings, viewModel, bindingContext){
     var mapEl = valueAccessor();
-    // console.log(element);
-    // console.log(valueAccessor());
-    // console.log(allBindings());
-    // console.log(viewModel);
-    // console.log(bindingContext);
 
     // Creates marker for each place
     mapEl.places().forEach(function(place){
@@ -220,7 +260,7 @@ ko.bindingHandlers.googlemap = {
         *  Takes marker as an argument
         */
         viewModel.getInfo(this);
-        openMoreInfo();
+        viewModel.openMoreInfo();
       });
 
       var bounds = window.mapBounds;
@@ -236,13 +276,12 @@ ko.bindingHandlers.googlemap = {
     window.addEventListener('resize', function(e) {
     // Make sure the map bounds get updated on page resize
      map.fitBounds(mapBounds);
+     viewModel.closeMoreInfo();
    });
 
   }// update  ends
 
 };
-
-  ko.applyBindings(new MyViewModel());
 
   /**
   * SIDE MENU
@@ -261,22 +300,5 @@ ko.bindingHandlers.googlemap = {
   };
   offCanvas();
 
-
-  var moreInfo = function(){
-
-    $('#close-info').click(function(){
-      $('#more-info').removeClass('slide-out');
-    });
-
-  };
-
-  moreInfo();
-
-  var openMoreInfo = function(){
-    //open more-info window
-    if(!$('#more-info').hasClass('slide-out')){
-      $('#more-info').addClass('slide-out');
-    }
-  };
-
+  ko.applyBindings(new MyViewModel());
 });

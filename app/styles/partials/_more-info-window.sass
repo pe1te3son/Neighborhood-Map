@@ -1,20 +1,54 @@
+%iwStyle
+  margin: 20px 5px 10px
+
 #more-info
   width: 360px
   height: 100vh
   +position(fixed, 0 null null -380px)
   z-index: 1
-  padding: 50px 10px 10px
+  padding: 0 0 10px
   background: $color2
   box-shadow: 0 0 15px #888888
   display: block
   transition: all 0.5s ease
+  overflow-x: hidden
+  overflow-y: hidden
+  &:hover
+    overflow-y: auto
+
 
 #close-info
   +position(absolute, 20px 20px null null)
-  background: $color2
+  color: $color2
+  text-shadow: 1px 1px 5px $color1
   font-size: 2em
+  background: none
   &:hover
     cursor: pointer
+    color: $color4
 
 .slide-out
   transform: translateX(380px)
+
+#more-info-window
+  text-align: center
+
+.iw-img
+  width: calc(100% + 20px)
+
+.iw-desc
+  @extend %iwStyle
+  text-align: left
+  border-top: 1px dotted $color3
+  border-bottom: 1px dotted $color3
+  padding: 20px 0
+
+.iw-rat
+  @extend %iwStyle
+  padding: 10px 0
+
+
+.iw-times
+
+.close-color
+  color: $color4

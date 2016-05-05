@@ -41,15 +41,16 @@ var Place = function(dataArray){
   var self = this;
   self.lat = ko.observable(dataArray.lat);
   self.lng = ko.observable(dataArray.lng);
-  self.name = ko.observable(dataArray.name);
   self.id = ko.observable(dataArray.id);
-  self.client_id = data.auth.client_id;
-  self.client_secret = data.auth.client_secret;
   self.position = ko.computed(function(){
     return {lat: self.lat(), lng: self.lng()};
   });
-  self.image = ko.observable();
+  self.name = ko.observable(dataArray.name);
+  self.photoLink = ko.observable();
+  self.address = ko.observableArray();
   self.desc = ko.observable();
+  self.rating = ko.observable();
+  self.ratingColor = ko.observable();
 
 };
 
@@ -58,11 +59,11 @@ var Place = function(dataArray){
 */
 var MyViewModel = function() {
   var self = this;
-  self.places = ko.observable([]);
+  self.places = ko.observableArray();
   self.search = ko.observable('');
   self.displayInfo = ko.observable('');
   self.infoWin = ko.observable(new google.maps.InfoWindow());
-
+  self.currentPlace = ko.observable();
   //adds Place into observable array
   data.locations.forEach(function(loc){
     self.places().push(new Place(loc));
@@ -104,23 +105,26 @@ var MyViewModel = function() {
   * Takes event as argument, which is in this case Place
   *
   */
-  self.locClick = function(e){
+  self.locClick = function(place){
 
     //Sets animation when location is cliked
-    if (e.marker.getAnimation() !== null) {
-      e.marker.setAnimation(null);
+    if (place.marker.getAnimation() !== null) {
+      place.marker.setAnimation(null);
     } else {
-      e.marker.setAnimation(google.maps.Animation.BOUNCE);
+      place.marker.setAnimation(google.maps.Animation.BOUNCE);
     }
     // Animation reset
-    setTimeout(function(){e.marker.setAnimation(null);}, 1500);
+    setTimeout(function(){place.marker.setAnimation(null);}, 1500);
 
     // Sets selected location`s marker to the center of map
-    map.setCenter(e.marker.getPosition());
+    map.setCenter(place.marker.getPosition());
+
+    // Calls for data to display
+    self.getInfo(place.marker);
+
+
     //opens info about selected location
     self.openMoreInfo();
-    // Calls for data to display
-    self.getInfo(e.marker);
   };
 
   // Closes info window
@@ -145,10 +149,10 @@ var MyViewModel = function() {
   *
   */
   self.getInfo = function(marker){
-
+    var place = marker.parent;
     var client_id = data.auth.client_id;
     var client_secret = data.auth.client_secret;
-    var url = 'https://api.foursquare.com/v2/venues/'+ marker.id +'?client_id='+ client_id +'&client_secret='+  client_secret +"&v=20160501";
+    var url = 'https://api.foursquare.com/v2/venues/'+ place.id() +'?client_id='+ client_id +'&client_secret='+  client_secret +"&v=20160501";
 
     $.ajax({
       dataType: "json",
@@ -156,71 +160,75 @@ var MyViewModel = function() {
       cache: true,
        success: function(data){
 
-      var markerContent = self.processInfo(data);
-      self.infoWin().setContent(markerContent);
-      self.infoWin().open(map, marker);
+      self.processInfo(data, place);
+      self.infoWin().setContent(place.name());
+      self.infoWin().open(map, place.marker);
         console.log(data.response.venue);
       },
       error: function(){
         var markerContent = "fuck me";
       self.infoWin().setContent(markerContent);
-      self.infoWin().open(map, marker);
+      self.infoWin().open(map, place.marker);
       }
     });
   };// getInfo() ends
 
-  self.processInfo = function(data){
+  self.processInfo = function(data, place){
+    var venue = data.response.venue;
 
-    // Photo
-    var content = '<div class="infowindow">';
-    var photo = data.response.venue.bestPhoto.prefix +"400x300"+data.response.venue.bestPhoto.suffix;
-    content += '<img src='+photo+' class="iw-img">';
-
-    // Name of the location
-    var name = data.response.venue.name;
-    content += '<h3 class="iw-name">'+ name +'</h3>';
-
-    // Address
-    var address = data.response.venue.location.formattedAddress
-    var formattedAddress = '<p class="iw-address">';
-    formattedAddress += address[0];
-    for(var i=1; i<address.length; i++){
-      formattedAddress += ', '+ address[i];
-    }
-    formattedAddress += '</p>';
-    content += formattedAddress;
-
-    //Ratings
-    var ratings = '<p class="iw-rat" style="background: #'+ data.response.venue.ratingColor +'; color: white">Rating: '+data.response.venue.rating+' <sup> / 10</sup></p>';
-    content +=  ratings;
-
-    // Description
-    if(data.response.venue.description){
-      var desc = data.response.venue.description;
-      content += '<p class="iw-desc">'+ desc +'</p>';
+    if(venue.bestPhoto){
+      // Photo
+      place.photoLink(venue.bestPhoto.prefix +"400x300"+venue.bestPhoto.suffix);
     }
 
-    var contact = '';
-
-
-    // Opening times
-    if(data.response.venue.hours){
-      var hours = '';
-      if(data.response.venue.hours.isOpen){
-        hours = '<p class="iw-times">'+ data.response.venue.hours.status +'</p>';
-      }else{
-          hours = '<p class="close-color iw-times">'+ data.response.venue.hours.status +'</p>';
-      }
-      content += hours;
+    if(venue.name){
+      // Name of the location
+      place.name(venue.name);
     }
 
+    if(venue.location.formattedAddress){
+      // Address
+      place.address(venue.location.formattedAddress);
+    }
 
-    content += '</div>';
-    $('#more-info-window').html('').append(content);
+    if(venue.rating && venue.ratingColor){
+      //Ratings
+      var color = 'background: #'+ venue.ratingColor;
+      place.ratingColor(color);
+      place.rating(venue.rating);
+    }
 
-    // Returns selected processed data to marker
-    var markerContent = '<h4 style="margin: 0; border-bottom: 1px solid">'+ name +'</h4>';
-    return markerContent;
+    //sets current place to be displayed
+    self.currentPlace(place);
+
+
+    // // Description
+    // if(data.response.venue.description){
+    //   var desc = data.response.venue.description;
+    //   content += '<p class="iw-desc">'+ desc +'</p>';
+    // }
+    //
+    // var contact = '';
+    //
+    //
+    // // Opening times
+    // if(data.response.venue.hours){
+    //   var hours = '';
+    //   if(data.response.venue.hours.isOpen){
+    //     hours = '<p class="iw-times">'+ data.response.venue.hours.status +'</p>';
+    //   }else{
+    //       hours = '<p class="close-color iw-times">'+ data.response.venue.hours.status +'</p>';
+    //   }
+    //   content += hours;
+    // }
+    //
+    //
+    // content += '</div>';
+    // $('#more-info-window').html('').append(content);
+    //
+    // // Returns selected processed data to marker
+    // var markerContent = '<h4 style="margin: 0; border-bottom: 1px solid">'+ name +'</h4>';
+    // return markerContent;
 
   };// processInfo ends
 
@@ -266,7 +274,7 @@ ko.bindingHandlers.googlemap = {
         position: latLng,
         map: map,
         animation: google.maps.Animation.DROP,
-        id: place.id()
+        parent: place
       });
 
       place.marker.addListener('click', function(){

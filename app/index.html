@@ -38,12 +38,18 @@
     <i id="off-btn" class="fa fa-bars" aria-hidden="true"></i>
     <!-- Side window container -->
     <div id="more-info">
-
     <i id="close-info" class="fa fa-times" aria-hidden="true" data-bind="click: closeMoreInfo"></i>
 
     <!-- Side window with information about location -->
-    <div id="more-info-window">
+    <div id="more-info-window" data-bind="with: currentPlace">
+      <img data-bind="attr: { src: photoLink, alt: name}" class="iw-img">
+      <h3 class="iw-name" data-bind="text: name"></h3>
+      <p class="iw-address" data-bind="foreach: address">
 
+        <span data-bind="text: $data"> </span>,
+
+      </p>
+      <p class="iw-rat" data-bind="attr: { style: ratingColor }, text: rating"></p>
     </div>
 
     </div>

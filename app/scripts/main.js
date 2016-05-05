@@ -51,6 +51,8 @@ var Place = function(dataArray){
   self.desc = ko.observable();
   self.rating = ko.observable();
   self.ratingColor = ko.observable();
+  self.facebook = ko.observable();
+  self.twitter = ko.observable();
 
 };
 
@@ -161,7 +163,7 @@ var MyViewModel = function() {
        success: function(data){
 
       self.processInfo(data, place);
-      self.infoWin().setContent(place.name());
+      self.infoWin().setContent('<h4 style="border-bottom: 1px solid; margin: 0 ">'+place.name()+'</h4>');
       self.infoWin().open(map, place.marker);
         console.log(data.response.venue);
       },
@@ -176,70 +178,64 @@ var MyViewModel = function() {
   self.processInfo = function(data, place){
     var venue = data.response.venue;
 
+    // Photo
     if(venue.bestPhoto){
-      // Photo
       place.photoLink(venue.bestPhoto.prefix +"400x300"+venue.bestPhoto.suffix);
     }
 
+    // Name of the location
     if(venue.name){
-      // Name of the location
       place.name(venue.name);
     }
 
+    // Address
     if(venue.location.formattedAddress){
-      // Address
       place.address(venue.location.formattedAddress);
     }
 
+    //Ratings
     if(venue.rating && venue.ratingColor){
-      //Ratings
       var color = 'background: #'+ venue.ratingColor;
       place.ratingColor(color);
       place.rating(venue.rating);
     }
 
+    // Description
+    if(venue.description){
+      place.desc(data.response.venue.description);
+    }
+
+    if(venue.contact.facebook){
+      place.facebook('http://facebook.com/'+venue.contact.facebook);
+    }
+
+    if(venue.contact.twitter){
+      place.twitter('http://twitter.com/'+venue.contact.twitter);
+    }
     //sets current place to be displayed
     self.currentPlace(place);
 
-
-    // // Description
-    // if(data.response.venue.description){
-    //   var desc = data.response.venue.description;
-    //   content += '<p class="iw-desc">'+ desc +'</p>';
-    // }
-    //
-    // var contact = '';
-    //
-    //
-    // // Opening times
-    // if(data.response.venue.hours){
-    //   var hours = '';
-    //   if(data.response.venue.hours.isOpen){
-    //     hours = '<p class="iw-times">'+ data.response.venue.hours.status +'</p>';
-    //   }else{
-    //       hours = '<p class="close-color iw-times">'+ data.response.venue.hours.status +'</p>';
-    //   }
-    //   content += hours;
-    // }
-    //
-    //
-    // content += '</div>';
-    // $('#more-info-window').html('').append(content);
-    //
-    // // Returns selected processed data to marker
-    // var markerContent = '<h4 style="margin: 0; border-bottom: 1px solid">'+ name +'</h4>';
-    // return markerContent;
 
   };// processInfo ends
 
 
 }; // MyViewModel ends
 
+
 /**
 * Custom binding for google map
 * Creates map, marker and infowindow for each place
 *
 */
+
+ko.bindingHandlers.infoWindow = {
+  init: function(element, valueAccessor, allBindings, viewModel, bindingContext){
+    
+
+
+  }
+}
+
 ko.bindingHandlers.googlemap = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
 

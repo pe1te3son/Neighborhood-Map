@@ -42,15 +42,37 @@
 
     <!-- Side window with information about location -->
     <div id="more-info-window" data-bind="with: currentPlace">
+
+      <!-- Imgae -->
       <img data-bind="attr: { src: photoLink, alt: name}" class="iw-img">
+
+      <!-- Name -->
       <h3 class="iw-name" data-bind="text: name"></h3>
+
+      <!-- Address -->
       <p class="iw-address" data-bind="foreach: address">
-
         <span data-bind="text: $data"> </span>,
-
       </p>
-      <p class="iw-rat" data-bind="attr: { style: ratingColor }, text: rating"></p>
-    </div>
+
+      <!-- Ratings -->
+      <p class="iw-rat" data-bind="attr: { style: ratingColor } "><span data-bind="text: rating"></span><sup> / 10</sup></p>
+
+      <!-- Description -->
+      <p class="iw-desc" data-bind="text: desc"></p>
+
+      <!-- Contacts -->
+      <div class="iw-contacts">
+
+        <ul>
+          <li class="iw-contact"><a href=""><i class="fa fa-phone-square" aria-hidden="true"></i> <span data-bind=""></span></a></li>
+          <li class="iw-contact"><a data-bind="attr: { href: twitter, }, visible: twitter() > 0" target="_blank"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li class="iw-contact"><a href="" target="_blank"><i class="fa fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+        </ul>
+
+      </div>
+
+
+    </div><!-- More info window ends -->
 
     </div>
 

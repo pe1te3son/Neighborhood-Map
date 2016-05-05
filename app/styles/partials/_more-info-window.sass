@@ -27,6 +27,10 @@
     cursor: pointer
     color: $color4
 
+.dotted
+  border-top: 1px dotted
+  width: 75%
+
 .slide-out
   transform: translateX(380px)
 
@@ -38,16 +42,14 @@
 
 .iw-desc
   @extend %iwStyle
-  border-top: 1px dotted $color3
-  border-bottom: 1px dotted $color3
   padding: 20px 0
 
 .iw-rat
   @extend %iwStyle
   padding: 10px 0
   text-align: center
-  max-width: 80%
-  margin: 20px auto
+  max-width: 40%
+  margin: 20px 0 20px 5px
   border-radius: 10px
   color: $color2
 
@@ -61,3 +63,21 @@
   @extend %iwStyle
   font-style: italic
   font-size: 0.9em
+
+.iw-contacts
+  ul
+    list-style: none
+    margin: 0
+
+.iw-contact
+
+  a
+    display: inline-block
+    color: $color3
+    text-decoration: none
+    &:hover
+      text-decoration: underline
+      color: $color4
+    i
+      font-size: 2em
+      margin-right: 10px

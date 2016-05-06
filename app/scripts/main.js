@@ -172,18 +172,6 @@ var MyViewModel = function() {
 
   };
 
-  //
-  // self.openMoreInfo = function(){
-  //   //open more-info window
-  //   if(!$('#more-info').hasClass('slide-out')){
-  //     $('#more-info').addClass('slide-out');
-  //   }
-  //
-  //   if(!$('#close-info2').hasClass('slide-out-icon')){
-  //     $('#close-info2').addClass('slide-out-icon');
-  //   }
-  // };
-
   /**
   *  Ajax request function
   *  This function runs when marker is clicked, it retrieves data from foursquare
@@ -203,7 +191,7 @@ var MyViewModel = function() {
        success: function(data){
 
       self.processInfo(data, place);
-      self.infoWin().setContent('<h4 style="border-bottom: 1px solid; margin: 0 ">'+place.name()+'</h4>');
+      self.infoWin().setContent('<h4 class="marker-info">'+place.name()+'</h4>');
       self.infoWin().open(map, place.marker);
         console.log(data.response.venue);
       },
@@ -336,9 +324,9 @@ ko.bindingHandlers.googlemap = {
 
       var bounds = window.mapBounds;
       bounds.extend(new google.maps.LatLng(place.position()));
-      // fit the map to the new marker
+      // Fit the map to the new marker
       map.fitBounds(bounds);
-      // center the map
+      // Center the map
       map.setCenter(bounds.getCenter());
 
     });//foreach ends

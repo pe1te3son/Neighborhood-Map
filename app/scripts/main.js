@@ -25,6 +25,12 @@ var data = {
       "id": "4abe4502f964a520558c20e3"
     },
     {
+      "name": "Stratford picture house",
+      "lat": 51.54303859900249,
+      "lng": 0.001206887404320114,
+      "id": "4b310ca6f964a52002ff24e3"
+    },
+    {
       "name": "Hyde park",
       "lat": 51.507460346127864,
       "lng": 	-0.16213417053222656,
@@ -76,6 +82,7 @@ var MyViewModel = function() {
   self.displayInfo = ko.observable('');
   self.infoWin = ko.observable(new google.maps.InfoWindow());
   self.currentPlace = ko.observable();
+  self.checkIfexist = ko.observable();
   //adds Place into observable array
   data.locations.forEach(function(loc){
     self.places().push(new Place(loc));
@@ -165,7 +172,7 @@ var MyViewModel = function() {
     var client_id = data.auth.client_id;
     var client_secret = data.auth.client_secret;
     var url = 'https://api.foursquare.com/v2/venues/'+ place.id() +'?client_id='+ client_id +'&client_secret='+  client_secret +"&v=20160501";
-
+    console.log(url);
     $.ajax({
       dataType: "json",
       url: url,
@@ -190,6 +197,7 @@ var MyViewModel = function() {
 
     // Photo
     if(venue.bestPhoto){
+
       place.photoLink(venue.bestPhoto.prefix +"400x300"+venue.bestPhoto.suffix);
     }
 
@@ -217,15 +225,24 @@ var MyViewModel = function() {
 
     if(venue.contact.facebook){
       place.facebook('http://facebook.com/'+venue.contact.facebook);
+      place.facebookExists = ko.observable(true);
+    }else{
+      place.facebookExists = ko.observable(false);
     }
 
     if(venue.contact.twitter){
       place.twitter(venue.contact.twitter);
+      place.twitterExists = ko.observable(true);
+    }else{
+      place.twitterExists = ko.observable(false);
     }
 
     if(venue.contact.phone){
       place.phone(venue.contact.phone);
       place.phoneTel('tel:'+venue.contact.phone);
+      place.phoneExists = ko.observable(true);
+    }else{
+      place.phoneExists = ko.observable(false);
     }
 
     //sets current place to be displayed

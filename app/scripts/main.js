@@ -1,5 +1,5 @@
 $(document).ready(function(){
-//array of all places
+// Array of all places
 var data = {
   "auth": {
     "client_id": "COIOBSSXMC4DBNB22N0WZ1WC3W0PXOFMC1NJW5PN1BL0FINU",
@@ -39,7 +39,7 @@ var data = {
   ]
 };
 /*
-  global map
+  Global map
 */
 var map;
 
@@ -82,19 +82,20 @@ var MyViewModel = function() {
   self.displayInfo = ko.observable('');
   self.infoWin = ko.observable(new google.maps.InfoWindow());
   self.currentPlace = ko.observable();
-  self.checkIfexist = ko.observable();
-  //adds Place into observable array
+  self.currentPlaceNotEmpty = ko.observable(false);
+
+  // Adds Place into observable array
   data.locations.forEach(function(loc){
     self.places().push(new Place(loc));
   });
 
-  //Filters locations based on search input
+  // Filters locations based on search input
   self.searchInput = ko.computed(function() {
     var filter = this.search().toLowerCase();
 
     if (!filter) {
 
-        if(self.places()[0].marker){//resets all markers to be visible, if search input has been cleared
+        if(self.places()[0].marker){// Resets all markers to be visible, if search input has been cleared
           self.places().forEach(function(place){
             place.marker.setVisible(true);
           });
@@ -107,11 +108,11 @@ var MyViewModel = function() {
         var found = item.name().toLowerCase().indexOf(filter) !== -1 ;
         if (found) {
 
-          //If result is true, show correct marker based off users search
+          // If result is true, show correct marker based off users search
           item.marker.setVisible(true);
         } else {
 
-          //hide markers that do not show users search results
+          // Hide markers that do not show users search results
           item.marker.setVisible(false);
         }
         return found;
@@ -126,7 +127,7 @@ var MyViewModel = function() {
   */
   self.locClick = function(place){
 
-    //Sets animation when location is cliked
+    // Sets animation when location is cliked
     if (place.marker.getAnimation() !== null) {
       place.marker.setAnimation(null);
     } else {
@@ -142,24 +143,46 @@ var MyViewModel = function() {
     self.getInfo(place.marker);
 
 
-    //opens info about selected location
-    self.openMoreInfo();
+    // Opens info about selected location
+    self.openInfoWindow();
   };
 
-  // Closes info window
-  self.closeMoreInfo = function(){
+  var infowin = $('#more-info');
+  var icon = $('#close-info');
+  // Closes or opens info window
+  self.closeOpenMoreInfo = function(){
 
-    $('#more-info').removeClass('slide-out');
+      if(infowin.hasClass('slide-out') && icon.hasClass('closeOpen')){
+        infowin.removeClass('slide-out');
+        icon.removeClass('closeOpen');
+      }else{
+        infowin.addClass('slide-out');
+        icon.addClass('closeOpen');
+      }
 
   };
 
+  // Only opens and keeps info window opened
+  self.openInfoWindow = function(){
 
-  self.openMoreInfo = function(){
-    //open more-info window
-    if(!$('#more-info').hasClass('slide-out')){
-      $('#more-info').addClass('slide-out');
+    if(!infowin.hasClass('slide-out') && !icon.hasClass('closeOpen')){
+      infowin.addClass('slide-out');
+      icon.addClass('closeOpen');
     }
+
   };
+
+  //
+  // self.openMoreInfo = function(){
+  //   //open more-info window
+  //   if(!$('#more-info').hasClass('slide-out')){
+  //     $('#more-info').addClass('slide-out');
+  //   }
+  //
+  //   if(!$('#close-info2').hasClass('slide-out-icon')){
+  //     $('#close-info2').addClass('slide-out-icon');
+  //   }
+  // };
 
   /**
   *  Ajax request function
@@ -247,6 +270,7 @@ var MyViewModel = function() {
 
     //sets current place to be displayed
     self.currentPlace(place);
+    self.currentPlaceNotEmpty(true);
 
 
   };// processInfo ends
@@ -307,7 +331,7 @@ ko.bindingHandlers.googlemap = {
         *  Takes marker as an argument
         */
         viewModel.getInfo(this);
-        viewModel.openMoreInfo();
+        viewModel.openInfoWindow();
       });
 
       var bounds = window.mapBounds;

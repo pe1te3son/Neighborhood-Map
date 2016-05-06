@@ -10,22 +10,11 @@
   background: $color2
   box-shadow: 0 0 15px #888888
   display: block
-  transition: all 0.5s ease
+  transition: all 0.1s ease
   overflow-x: hidden
   overflow-y: hidden
   &:hover
     overflow-y: auto
-
-
-#close-info
-  +position(absolute, 20px 20px null null)
-  color: $color2
-  text-shadow: 1px 1px 5px $color1
-  font-size: 2em
-  background: none
-  &:hover
-    cursor: pointer
-    color: $color4
 
 .dotted
   border-top: 1px dotted
@@ -33,6 +22,9 @@
 
 .slide-out
   transform: translateX(380px)
+
+.closeOpen
+  transform: translateX(350px)
 
 .iw-name
   text-align: center
@@ -85,3 +77,19 @@
     i
       font-size: 2em
       margin-right: 10px
+
+#close-info
+  +position(absolute, 60px null null 10px)
+  z-index: 2
+  background: $color2
+  text-align: center
+  padding: 20px 10px
+  transition: transform 0.1s ease
+  border-radius: 5px
+  width: 30px
+  color: $color5
+  box-shadow: 0 0 15px $color3
+  width: 35px
+  &:hover
+    color: $color4
+    cursor: pointer

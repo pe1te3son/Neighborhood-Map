@@ -23,6 +23,12 @@ var data = {
       "lat": 51.501476,
       "lng": 	-0.140634,
       "id": "4abe4502f964a520558c20e3"
+    },
+    {
+      "name": "Hyde park",
+      "lat": 51.507460346127864,
+      "lng": 	-0.16213417053222656,
+      "id": "4ac518d2f964a52026a720e3"
     }
   ]
 };
@@ -47,12 +53,16 @@ var Place = function(dataArray){
   });
   self.name = ko.observable(dataArray.name);
   self.photoLink = ko.observable();
-  self.address = ko.observableArray();
-  self.desc = ko.observable();
-  self.rating = ko.observable();
+  self.address = ko.observable();
   self.ratingColor = ko.observable();
+  self.rating = ko.observable();
+  self.desc = ko.observable();
   self.facebook = ko.observable();
   self.twitter = ko.observable();
+  self.phone = ko.observable();
+  self.phoneTel = ko.observable();
+  self.statusL = ko.observable();
+
 
 };
 
@@ -210,8 +220,14 @@ var MyViewModel = function() {
     }
 
     if(venue.contact.twitter){
-      place.twitter('http://twitter.com/'+venue.contact.twitter);
+      place.twitter(venue.contact.twitter);
     }
+
+    if(venue.contact.phone){
+      place.phone(venue.contact.phone);
+      place.phoneTel('tel:'+venue.contact.phone);
+    }
+
     //sets current place to be displayed
     self.currentPlace(place);
 
@@ -227,14 +243,6 @@ var MyViewModel = function() {
 * Creates map, marker and infowindow for each place
 *
 */
-
-ko.bindingHandlers.infoWindow = {
-  init: function(element, valueAccessor, allBindings, viewModel, bindingContext){
-    
-
-
-  }
-}
 
 ko.bindingHandlers.googlemap = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {

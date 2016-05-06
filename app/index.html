@@ -59,17 +59,19 @@
 
       <!-- Description -->
       <p class="iw-desc" data-bind="text: desc"></p>
-
+      <p class="iw-status" data-bind="text: statusL"></p>
       <!-- Contacts -->
       <div class="iw-contacts">
 
         <ul>
-          <li class="iw-contact"><a href=""><i class="fa fa-phone-square" aria-hidden="true"></i> <span data-bind=""></span></a></li>
-          <li class="iw-contact"><a data-bind="attr: { href: twitter, }, visible: twitter() > 0" target="_blank"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
-          <li class="iw-contact"><a href="" target="_blank"><i class="fa fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
+          <li class="iw-contact"><a data-bind="attr: { href: phoneTel }"><i class="fa fa-phone-square" aria-hidden="true"></i> <span data-bind="text: phone"></span></a></li>
+          <li class="iw-contact"><a data-bind="attr: { href: twitter }" target="_blank"><i class="fa fa-twitter-square" aria-hidden="true"></i> Twitter</a></li>
+          <li class="iw-contact"><a data-bind="attr: { href: facebook }" target="_blank"><i class="fa fa-facebook-square" aria-hidden="true"></i> Facebook</a></li>
         </ul>
 
       </div>
+
+
 
 
     </div><!-- More info window ends -->

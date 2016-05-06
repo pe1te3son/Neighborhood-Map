@@ -31,6 +31,36 @@ var data = {
       "id": "4b310ca6f964a52002ff24e3"
     },
     {
+      "name": "The Cow",
+      "lat": 51.519200629510514,
+      "lng": -0.1954983152188697,
+      "id": "4ac518bdf964a520dfa220e3"
+    },
+    {
+      "name": "London Zoo",
+      "lat": 51.535645144168825,
+      "lng": -0.15573978424072266,
+      "id": "4ac51183f964a52048a020e3"
+    },
+    {
+      "name": "Royal Botanic Gardens",
+      "lat": 51.477747968798816,
+      "lng": -0.296630859375,
+      "id": "4ac518cef964a52002a620e3"
+    },
+    {
+      "name": "The Courtauld Gallery",
+      "lat": 51.51157280958188,
+      "lng": -0.1176735793118728,
+      "id": "4ac518d2f964a5203fa720e3"
+    },
+    {
+      "name": "Royal Observatory",
+      "lat": 51.4771332098067,
+      "lng": -0.0007510185241699219,
+      "id": "4ac518cef964a5203aa620e3"
+    },
+    {
       "name": "Hyde park",
       "lat": 51.507460346127864,
       "lng": 	-0.16213417053222656,
@@ -68,7 +98,8 @@ var Place = function(dataArray){
   self.phone = ko.observable();
   self.phoneTel = ko.observable();
   self.statusL = ko.observable();
-
+  self.url = ko.observable();
+  self.formatedUrl = ko.observable();
 
 };
 
@@ -139,7 +170,7 @@ var MyViewModel = function() {
     // Sets selected location`s marker to the center of map
     map.setCenter(place.marker.getPosition());
 
-    // Calls for data to display
+    // Calls for data to retrieve
     self.getInfo(place.marker);
 
 
@@ -219,11 +250,6 @@ var MyViewModel = function() {
       place.photoLink(venue.bestPhoto.prefix +"400x300"+venue.bestPhoto.suffix);
     }
 
-    // Name of the location
-    if(venue.name){
-      place.name(venue.name);
-    }
-
     // Address
     if(venue.location.formattedAddress){
       place.address(venue.location.formattedAddress);
@@ -263,6 +289,13 @@ var MyViewModel = function() {
       place.phoneExists = ko.observable(false);
     }
 
+    if(venue.url){
+      var url = venue.url;
+      var formatedUrl = url.replace('http://', '');
+
+      place.formatedUrl(formatedUrl);
+      place.url(venue.url);
+    }
     //sets current place to be displayed
     self.currentPlace(place);
     self.currentPlaceNotEmpty(true);

@@ -29,8 +29,6 @@
       <input type="text" placeholder="search" data-bind="textInput: search" id="search-field">
       <ul data-bind="foreach: searchInput" class="places-list">
         <li class="place"><a href="#" data-bind="text: $data.name, click: $parent.locClick" class="place-link"></a></li>
-
-        <!-- <i class="fa fa-arrow-right slide-out-icon" aria-hidden="true"></i> -->
       </ul>
 
     </div>
@@ -60,7 +58,7 @@
 
       <!-- Description -->
       <p class="iw-desc" data-bind="text: desc"></p>
-      <p class="iw-status" data-bind="text: statusL"></p>
+
       <!-- Contacts -->
       <div class="iw-contacts">
 
@@ -72,7 +70,7 @@
 
       </div>
 
-
+      <p class="iw-url"><a data-bind="attr: { href: url }, text: formatedUrl"></a></p>
 
 
     </div><!-- More info window ends -->

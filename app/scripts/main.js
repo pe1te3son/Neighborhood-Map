@@ -172,6 +172,13 @@ var MyViewModel = function() {
 
   };
 
+  self.closeMoreInfo = function(){
+    if(infowin.hasClass('slide-out') && icon.hasClass('closeOpen')){
+      infowin.removeClass('slide-out');
+      icon.removeClass('closeOpen');
+    }
+  };
+
   /**
   *  Ajax request function
   *  This function runs when marker is clicked, it retrieves data from foursquare

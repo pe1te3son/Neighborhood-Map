@@ -203,6 +203,7 @@ var MyViewModel = function() {
 
   };
 
+  // Closes info window
   self.closeMoreInfo = function(){
     if(infowin.hasClass('slide-out') && icon.hasClass('closeOpen')){
       infowin.removeClass('slide-out');
@@ -221,7 +222,6 @@ var MyViewModel = function() {
     var client_id = data.auth.client_id;
     var client_secret = data.auth.client_secret;
     var url = 'https://api.foursquare.com/v2/venues/'+ place.id() +'?client_id='+ client_id +'&client_secret='+  client_secret +"&v=20160501";
-    console.log(url);
     $.ajax({
       dataType: "json",
       url: url,
@@ -231,10 +231,10 @@ var MyViewModel = function() {
       self.processInfo(data, place);
       self.infoWin().setContent('<h4 class="marker-info">'+place.name()+'</h4>');
       self.infoWin().open(map, place.marker);
-        console.log(data.response.venue);
+      self.openInfoWindow();
       },
       error: function(){
-        var markerContent = "fuck me";
+      var markerContent = '<h2 class="error-msg">Ooops, something went wrong!</h2><p>Please reload a page or check your internet conection</p>';
       self.infoWin().setContent(markerContent);
       self.infoWin().open(map, place.marker);
       }
@@ -267,6 +267,7 @@ var MyViewModel = function() {
       place.desc(data.response.venue.description);
     }
 
+    // Facebook
     if(venue.contact.facebook){
       place.facebook('http://facebook.com/'+venue.contact.facebook);
       place.facebookExists = ko.observable(true);
@@ -274,6 +275,7 @@ var MyViewModel = function() {
       place.facebookExists = ko.observable(false);
     }
 
+    // Twitter
     if(venue.contact.twitter){
       place.twitter(venue.contact.twitter);
       place.twitterExists = ko.observable(true);
@@ -281,6 +283,7 @@ var MyViewModel = function() {
       place.twitterExists = ko.observable(false);
     }
 
+    // Phone number
     if(venue.contact.phone){
       place.phone(venue.contact.phone);
       place.phoneTel('tel:'+venue.contact.phone);
@@ -289,6 +292,7 @@ var MyViewModel = function() {
       place.phoneExists = ko.observable(false);
     }
 
+    // Website url
     if(venue.url){
       var url = venue.url;
       var formatedUrl = url.replace('http://', '');
@@ -296,6 +300,7 @@ var MyViewModel = function() {
       place.formatedUrl(formatedUrl);
       place.url(venue.url);
     }
+
     //sets current place to be displayed
     self.currentPlace(place);
     self.currentPlaceNotEmpty(true);
@@ -316,10 +321,10 @@ var MyViewModel = function() {
 ko.bindingHandlers.googlemap = {
   init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
 
-    //Binding with map element in index.html
+    // Binding with map element in index.html
     var mapEl = valueAccessor();
 
-    //Settings for map
+    // Settings for map
     var mapOptions = {
       zoom: 11,
       center: new google.maps.LatLng(mapEl.centerLat, mapEl.centerLon),
@@ -359,7 +364,6 @@ ko.bindingHandlers.googlemap = {
         *  Takes marker as an argument
         */
         viewModel.getInfo(this);
-        viewModel.openInfoWindow();
       });
 
       var bounds = window.mapBounds;
@@ -369,7 +373,7 @@ ko.bindingHandlers.googlemap = {
       // Center the map
       map.setCenter(bounds.getCenter());
 
-    });//foreach ends
+    });// foreach ends
 
 
     window.addEventListener('resize', function(e) {
@@ -384,8 +388,7 @@ ko.bindingHandlers.googlemap = {
 };
 
   /**
-  * SIDE MENU
-  *
+  * SIDE MENU NAVIGATION
   */
 
   var offCanvas = function(){

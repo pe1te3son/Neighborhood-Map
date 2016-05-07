@@ -1,4 +1,3 @@
-
 // Array of all places
 var data = {
   "auth": {
@@ -71,11 +70,18 @@ var data = {
 
 var map;
 
+// Callback if google map fails to load
+var googleError = function(){
+  'use strict';
+  document.getElementById('map').innerHTML = '<div class="warn-msg"><h2 class="warn-color">Oops! There was a problem loading a map.</h2><p>Please reload the page or check your internet conection.</p></div>';
+};
+
 /**
 * Initialize the map
 * This function is being called asynchronously in index.html as an callback
 */
-function initMap(){
+var initMap = function(){
+  'use strict';
   // Settings for map
   var mapOptions = {
     zoom: 11,
@@ -93,21 +99,12 @@ function initMap(){
 
   window.mapBounds = new google.maps.LatLngBounds();
 
-
-
   /**
   * Custom binding for google map
-  * Creates map, marker and infowindow for each place
+  * Creates marker and infowindow for each place
   *
   */
   ko.bindingHandlers.googlemap = {
-    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-
-      // Binding with map element in index.html
-      var mapEl = valueAccessor();
-
-
-    },// init ends
     update: function(element, valueAccessor, allBindings, viewModel, bindingContext){
       var mapEl = valueAccessor();
 
@@ -143,7 +140,6 @@ function initMap(){
 
       });// foreach ends
 
-
       window.addEventListener('resize', function(e) {
       // Make sure the map bounds get updated on page resize
        map.fitBounds(mapBounds);
@@ -155,30 +151,27 @@ function initMap(){
 
   };
 
-    /**
-    * SIDE MENU NAVIGATION
-    */
+  // Side menu navigation
+  var offCanvas = function(){
+    var $button = document.getElementById('off-btn');
+    var $body = document.getElementById('off-body');
+    var $nav = document.getElementById('off-nav');
 
-    var offCanvas = function(){
-      var $button = document.getElementById('off-btn');
-      var $body = document.getElementById('off-body');
-      var $nav = document.getElementById('off-nav');
-
-      $button.addEventListener('click', function(e){
-        $nav.classList.toggle('off-shift');
-        $body.classList.toggle('off-shift');
-      }, false);
-    };
-    offCanvas();
+    $button.addEventListener('click', function(e){
+      $nav.classList.toggle('off-shift');
+      $body.classList.toggle('off-shift');
+    }, false);
+  };
+  offCanvas();
 
 
   ko.applyBindings(new MyViewModel());
-}
+};// initMap ends
+
 /**
 *  All place`s object
 *  @param: dataArray - json
 *  Object for every place
-*
 */
 var Place = function(dataArray){
   var self = this;
@@ -199,15 +192,13 @@ var Place = function(dataArray){
   self.phone = ko.observable();
   self.phoneTel = ko.observable();
   self.statusL = ko.observable();
-  self.url = ko.observable();
-  self.formatedUrl = ko.observable();
+  self.canonicalUrl = ko.observable();
 
 };
 
-/**
-* View model
-*/
+// View model
 var MyViewModel = function() {
+  'use strict';
   var self = this;
   self.places = ko.observableArray();
   self.search = ko.observable('');
@@ -267,7 +258,6 @@ var MyViewModel = function() {
   /**
   * Triggers when location in slide in menu is being clicked.
   * Takes event as argument, which is in this case Place
-  *
   */
   self.locClick = function(place){
 
@@ -321,7 +311,6 @@ var MyViewModel = function() {
   *  Ajax request function
   *  This function runs when marker is clicked, it retrieves data from foursquare
   *  @param marker - google map marker
-  *
   */
   self.getInfo = function(marker){
     var place = marker.parent;
@@ -349,7 +338,6 @@ var MyViewModel = function() {
 
   self.processInfo = function(data, place){
     var venue = data.response.venue;
-
     // Photo
     if(venue.bestPhoto){
 
@@ -399,12 +387,8 @@ var MyViewModel = function() {
     }
 
     // Website url
-    if(venue.url){
-      var url = venue.url;
-      var formatedUrl = url.replace('http://', '');
-
-      place.formatedUrl(formatedUrl);
-      place.url(venue.url);
+    if(venue.canonicalUrl){
+      place.canonicalUrl(venue.canonicalUrl);
     }
 
     //sets current place to be displayed

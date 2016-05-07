@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initMap"></script>
+    <script async src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initMap" onerror="googleError()"></script>
 
   </head>
   <body>
@@ -70,7 +70,7 @@
 
       </div>
 
-      <p class="iw-url"><a data-bind="attr: { href: url }, text: formatedUrl" target="_blank"></a></p>
+      <p class="iw-url"><a data-bind="attr: { href: canonicalUrl }" target="_blank">Visit on Foursquare</a></p>
 
 
     </div><!-- More info window ends -->

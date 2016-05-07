@@ -28,3 +28,9 @@ This is Interactive map displaying my favorite locations around London. All loca
 [Foursquare](https://foursquare.com)
 
 [Yeoman Webapp generator](https://github.com/yeoman/generator-webapp)
+
+### Resources
+
+* https://discussions.udacity.com/t/handling-google-maps-in-async-and-fallback/34282/13
+* http://learn.knockoutjs.com/
+* https://developers.google.com/maps/documentation/javascript/

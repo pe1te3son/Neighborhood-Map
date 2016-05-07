@@ -79,17 +79,17 @@
     <div id="map" data-bind="googlemap: { places: places }"></div>
 
   </div>
-
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="/bower_components/jquery/dist/jquery.js"></script>
     <script src="/bower_components/knockout/dist/knockout.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initMap" onerror="googleError()"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
     <!-- build:js scripts/main.js -->
     <script src="scripts/main.js"></script>
     <!-- endbuild -->
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initMap" onerror="googleError()"  async defer></script>
+
   </body>
 </html>

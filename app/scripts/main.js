@@ -1,4 +1,4 @@
-$(document).ready(function(){
+
 // Array of all places
 var data = {
   "auth": {
@@ -68,11 +68,112 @@ var data = {
     }
   ]
 };
-/*
-  Global map
-*/
+
 var map;
 
+/**
+* Initialize the map
+* This function is being called asynchronously in index.html as an callback
+*/
+function initMap(){
+  // Settings for map
+  var mapOptions = {
+    zoom: 11,
+    center: new google.maps.LatLng({lat: 51.51, lng: -0.12}),
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    mapTypeControlOptions: {
+      style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+      position: google.maps.ControlPosition.TOP_CENTER
+    }
+  };
+
+  // Creates map and adds to map div
+  var mapdiv = document.getElementById('map');
+  map = new google.maps.Map(mapdiv, mapOptions);
+
+  window.mapBounds = new google.maps.LatLngBounds();
+
+
+
+  /**
+  * Custom binding for google map
+  * Creates map, marker and infowindow for each place
+  *
+  */
+  ko.bindingHandlers.googlemap = {
+    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+
+      // Binding with map element in index.html
+      var mapEl = valueAccessor();
+
+
+    },// init ends
+    update: function(element, valueAccessor, allBindings, viewModel, bindingContext){
+      var mapEl = valueAccessor();
+
+      // Creates marker for each place
+      mapEl.places().forEach(function(place){
+        var latLng = new google.maps.LatLng(place.position());
+
+        place.marker = new google.maps.Marker({
+          position: latLng,
+          map: map,
+          animation: google.maps.Animation.DROP,
+          parent: place
+        });
+
+        place.marker.addListener('click', function(){
+          //sets marker to be in center of window when clicked
+          map.setCenter(this.getPosition());
+
+          viewModel.markerAnimate(this);
+          /**
+          *  When clicked retrieve and display data
+          *  Takes marker as an argument
+          */
+          viewModel.getInfo(this);
+        });
+
+        var bounds = window.mapBounds;
+        bounds.extend(new google.maps.LatLng(place.position()));
+        // Fit the map to the new marker
+        map.fitBounds(bounds);
+        // Center the map
+        map.setCenter(bounds.getCenter());
+
+      });// foreach ends
+
+
+      window.addEventListener('resize', function(e) {
+      // Make sure the map bounds get updated on page resize
+       map.fitBounds(mapBounds);
+       viewModel.closeMoreInfo();
+       viewModel.infoWin.close();
+     });
+
+    }// update  ends
+
+  };
+
+    /**
+    * SIDE MENU NAVIGATION
+    */
+
+    var offCanvas = function(){
+      var $button = document.getElementById('off-btn');
+      var $body = document.getElementById('off-body');
+      var $nav = document.getElementById('off-nav');
+
+      $button.addEventListener('click', function(e){
+        $nav.classList.toggle('off-shift');
+        $body.classList.toggle('off-shift');
+      }, false);
+    };
+    offCanvas();
+
+
+  ko.applyBindings(new MyViewModel());
+}
 /**
 *  All place`s object
 *  @param: dataArray - json
@@ -111,7 +212,7 @@ var MyViewModel = function() {
   self.places = ko.observableArray();
   self.search = ko.observable('');
   self.displayInfo = ko.observable('');
-  self.infoWin = ko.observable(new google.maps.InfoWindow());
+  self.infoWin = new google.maps.InfoWindow();
   self.currentPlace = ko.observable();
   self.currentPlaceNotEmpty = ko.observable(false);
 
@@ -151,6 +252,18 @@ var MyViewModel = function() {
     }
   }, self);
 
+  self.markerAnimate = function(marker){
+    // Sets animation when location is cliked
+    if (marker.getAnimation() !== null) {
+      marker.setAnimation(null);
+    } else {
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+    }
+    // Animation reset
+    setTimeout(function(){marker.setAnimation(null);}, 1500);
+
+  };
+
   /**
   * Triggers when location in slide in menu is being clicked.
   * Takes event as argument, which is in this case Place
@@ -158,14 +271,7 @@ var MyViewModel = function() {
   */
   self.locClick = function(place){
 
-    // Sets animation when location is cliked
-    if (place.marker.getAnimation() !== null) {
-      place.marker.setAnimation(null);
-    } else {
-      place.marker.setAnimation(google.maps.Animation.BOUNCE);
-    }
-    // Animation reset
-    setTimeout(function(){place.marker.setAnimation(null);}, 1500);
+    self.markerAnimate(place.marker);
 
     // Sets selected location`s marker to the center of map
     map.setCenter(place.marker.getPosition());
@@ -178,16 +284,16 @@ var MyViewModel = function() {
     self.openInfoWindow();
   };
 
-  var infowin = $('#more-info');
+  var infowinEl = $('#more-info');
   var icon = $('#close-info');
   // Closes or opens info window
   self.closeOpenMoreInfo = function(){
 
-      if(infowin.hasClass('slide-out') && icon.hasClass('closeOpen')){
-        infowin.removeClass('slide-out');
+      if(infowinEl.hasClass('slide-out') && icon.hasClass('closeOpen')){
+        infowinEl.removeClass('slide-out');
         icon.removeClass('closeOpen');
       }else{
-        infowin.addClass('slide-out');
+        infowinEl.addClass('slide-out');
         icon.addClass('closeOpen');
       }
 
@@ -196,8 +302,8 @@ var MyViewModel = function() {
   // Only opens and keeps info window opened
   self.openInfoWindow = function(){
 
-    if(!infowin.hasClass('slide-out') && !icon.hasClass('closeOpen')){
-      infowin.addClass('slide-out');
+    if(!infowinEl.hasClass('slide-out') && !icon.hasClass('closeOpen')){
+      infowinEl.addClass('slide-out');
       icon.addClass('closeOpen');
     }
 
@@ -205,8 +311,8 @@ var MyViewModel = function() {
 
   // Closes info window
   self.closeMoreInfo = function(){
-    if(infowin.hasClass('slide-out') && icon.hasClass('closeOpen')){
-      infowin.removeClass('slide-out');
+    if(infowinEl.hasClass('slide-out') && icon.hasClass('closeOpen')){
+      infowinEl.removeClass('slide-out');
       icon.removeClass('closeOpen');
     }
   };
@@ -229,14 +335,14 @@ var MyViewModel = function() {
        success: function(data){
 
       self.processInfo(data, place);
-      self.infoWin().setContent('<h4 class="marker-info">'+place.name()+'</h4>');
-      self.infoWin().open(map, place.marker);
+      self.infoWin.setContent('<h4 class="marker-info">'+place.name()+'</h4>');
+      self.infoWin.open(map, place.marker);
       self.openInfoWindow();
       },
       error: function(){
       var markerContent = '<h2 class="error-msg">Ooops, something went wrong!</h2><p>Please reload a page or check your internet conection</p>';
-      self.infoWin().setContent(markerContent);
-      self.infoWin().open(map, place.marker);
+      self.infoWin.setContent(markerContent);
+      self.infoWin.open(map, place.marker);
       }
     });
   };// getInfo() ends
@@ -310,98 +416,3 @@ var MyViewModel = function() {
 
 
 }; // MyViewModel ends
-
-
-/**
-* Custom binding for google map
-* Creates map, marker and infowindow for each place
-*
-*/
-
-ko.bindingHandlers.googlemap = {
-  init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-
-    // Binding with map element in index.html
-    var mapEl = valueAccessor();
-
-    // Settings for map
-    var mapOptions = {
-      zoom: 11,
-      center: new google.maps.LatLng(mapEl.centerLat, mapEl.centerLon),
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-      mapTypeControlOptions: {
-        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-        position: google.maps.ControlPosition.TOP_CENTER
-      }
-    };
-
-    // Creates map and adds to map div
-    map = new google.maps.Map(element, mapOptions);
-
-    window.mapBounds = new google.maps.LatLngBounds();
-
-  },// init ends
-  update: function(element, valueAccessor, allBindings, viewModel, bindingContext){
-    var mapEl = valueAccessor();
-
-    // Creates marker for each place
-    mapEl.places().forEach(function(place){
-      var latLng = new google.maps.LatLng(place.position());
-
-      place.marker = new google.maps.Marker({
-        position: latLng,
-        map: map,
-        animation: google.maps.Animation.DROP,
-        parent: place
-      });
-
-      place.marker.addListener('click', function(){
-        //sets marker to be in center of window when clicked
-        map.setCenter(this.getPosition());
-
-        /**
-        *  When clicked retrieve and display data
-        *  Takes marker as an argument
-        */
-        viewModel.getInfo(this);
-      });
-
-      var bounds = window.mapBounds;
-      bounds.extend(new google.maps.LatLng(place.position()));
-      // Fit the map to the new marker
-      map.fitBounds(bounds);
-      // Center the map
-      map.setCenter(bounds.getCenter());
-
-    });// foreach ends
-
-
-    window.addEventListener('resize', function(e) {
-    // Make sure the map bounds get updated on page resize
-     map.fitBounds(mapBounds);
-     viewModel.closeMoreInfo();
-     viewModel.infoWin().close();
-   });
-
-  }// update  ends
-
-};
-
-  /**
-  * SIDE MENU NAVIGATION
-  */
-
-  var offCanvas = function(){
-    var $button = document.getElementById('off-btn');
-    var $body = document.getElementById('off-body');
-    var $nav = document.getElementById('off-nav');
-
-    $button.addEventListener('click', function(e){
-      $nav.classList.toggle('off-shift');
-      $body.classList.toggle('off-shift');
-    }, false);
-  };
-  offCanvas();
-
-  ko.applyBindings(new MyViewModel());
-});
